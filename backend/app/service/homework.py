@@ -4,8 +4,7 @@ import os
 import time
 from typing import List, Dict, Any
 
-# 添加项目根目录到Python路径
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+
 
 from app.data.static_data import TEST_CASES, SUPPORTED_TEST_METHODS, SUPPORTED_FUNCTIONS
 
@@ -17,7 +16,7 @@ def generate_test_cases(code: str, function_name: str, test_method: str) -> Dict
     code: 要测试的代码源码
     function_name: 函数名称 ("triangle_judge", "computer_selling", "telecom_system", "calendar_problem")
     test_method: 测试方法 ("boundary_basic", "boundary_robust", "equivalent_weak", 
-                "equivalent_strong", "equivalent_weak_robust", "equivalent_strong_robust")
+                "equivalent_strong", "equivalent_weak_robust", "equivalent_strong_robust", "decision_table")
     
     返回:
     包含测试用例和预期结果的JSON格式字典
@@ -152,53 +151,114 @@ def get_test_results_json(code: str, function_name: str, test_method: str) -> st
     result = generate_test_cases(code, function_name, test_method)
     return json.dumps(result, ensure_ascii=False, indent=2)
 
-# 为了向后兼容，保留原函数名
-def generate_triangle_test_cases(code: str, test_method: str) -> Dict[str, Any]:
-    """
-    三角形测试用例生成函数（向后兼容）
-    """
-    return generate_test_cases(code, "triangle_judge", test_method)
-
 # 测试函数
 if __name__ == "__main__":
     from app.data.static_data import HOMEWORK_CODES
     
-    # 测试triangle_judge函数
-    function_name = "triangle_judge"
-    sample_code = HOMEWORK_CODES[function_name]
+    print("=" * 80)
+    print("软件测试工具 - 全面测试报告")
+    print("=" * 80)
     
-    print(f"测试函数: {function_name}")
-    print("=" * 50)
+    # 统计信息
+    total_functions = 0
+    total_methods = 0
+    total_cases = 0
+    total_passed = 0
+    total_failed = 0
     
-    # 测试基本边界值方法
-    test_method = "boundary_basic"
-    result = generate_test_cases(sample_code, function_name, test_method)
-    
-    if result["success"]:
-        print(f"\n测试方法: {result['test_name']}")
-        print(f"描述: {result['description']}")
-        print(f"总用例数: {result['summary']['total_cases']}")
-        print(f"通过用例数: {result['summary']['passed_cases']}")
-        print(f"失败用例数: {result['summary']['failed_cases']}")
-        print(f"通过率: {result['summary']['pass_rate']}")
-        
-        print("\n详细测试结果:")
-        print("-" * 80)
-        print(f"{'ID':<3} {'Input':<20} {'Expected':<30} {'Actual':<30} {'Passed':<7} {'Duration':<10}")
-        print("-" * 80)
-        
-        for test_case in result["test_results"]:
-            input_str = str(test_case["Input"])[:18] + ".." if len(str(test_case["Input"])) > 20 else str(test_case["Input"])
-            expected_str = str(test_case["Expected"])[:28] + ".." if len(str(test_case["Expected"])) > 30 else str(test_case["Expected"])
-            actual_str = str(test_case["Actual"])[:28] + ".." if len(str(test_case["Actual"])) > 30 else str(test_case["Actual"])
+    # 测试所有支持的函数
+    for function_name in SUPPORTED_FUNCTIONS:
+        if function_name not in HOMEWORK_CODES:
+            print(f"\n警告: 函数 {function_name} 没有对应的代码实现，跳过测试")
+            continue
             
-            print(f"{test_case['ID']:<3} {input_str:<20} {expected_str:<30} {actual_str:<30} {test_case['Passed']:<7} {test_case['Duration']:<10}")
+        sample_code = HOMEWORK_CODES[function_name]
+        total_functions += 1
         
-        # 输出JSON格式
-        print("\n" + "=" * 50)
-        print("JSON格式输出:")
-        print("=" * 50)
-        print(get_test_results_json(sample_code, function_name, test_method))
+        print(f"\n{'='*60}")
+        print(f"测试函数: {function_name}")
+        print(f"函数描述: {TEST_CASES[function_name]['description']}")
+        print("=" * 60)
         
-    else:
-        print(f"测试失败: {result['message']}")
+        # 获取该函数支持的测试方法
+        available_methods = list(TEST_CASES[function_name]["test_methods"].keys())
+        function_methods = 0
+        function_cases = 0
+        function_passed = 0
+        function_failed = 0
+        
+        # 测试该函数的所有方法
+        for method in available_methods:
+            result = generate_test_cases(sample_code, function_name, method)
+            function_methods += 1
+            total_methods += 1
+            
+            if result["success"]:
+                method_cases = result['summary']['total_cases']
+                method_passed = result['summary']['passed_cases']
+                method_failed = result['summary']['failed_cases']
+                
+                function_cases += method_cases
+                function_passed += method_passed
+                function_failed += method_failed
+                
+                total_cases += method_cases
+                total_passed += method_passed
+                total_failed += method_failed
+                
+                print(f"\n--- {result['test_name']} ---")
+                print(f"描述: {result['description']}")
+                print(f"总用例数: {method_cases}")
+                print(f"通过: {method_passed}, 失败: {method_failed}")
+                print(f"通过率: {result['summary']['pass_rate']}")
+                
+                # 如果有失败的用例，显示失败详情
+                failed_cases = [r for r in result['test_results'] if not r['Passed']]
+                if failed_cases:
+                    print("失败的测试用例:")
+                    for case in failed_cases[:3]:  # 只显示前3个失败用例，避免输出过长
+                        print(f"  - 用例{case['ID']}: {case['Input']} -> 期望: '{case['Expected']}', 实际: '{case['Actual']}'")
+                    if len(failed_cases) > 3:
+                        print(f"  ... 还有 {len(failed_cases) - 3} 个失败用例")
+            else:
+                print(f"\n--- 测试方法 {method} 失败 ---")
+                print(f"错误信息: {result['message']}")
+        
+        # 输出该函数的汇总信息
+        function_pass_rate = round((function_passed / function_cases) * 100, 2) if function_cases > 0 else 0
+        print(f"\n{function_name} 函数汇总:")
+        print(f"  支持的测试方法数: {function_methods}")
+        print(f"  总测试用例数: {function_cases}")
+        print(f"  通过用例数: {function_passed}")
+        print(f"  失败用例数: {function_failed}")
+        print(f"  整体通过率: {function_pass_rate}%")
+    
+    # 输出全局汇总信息
+    overall_pass_rate = round((total_passed / total_cases) * 100, 2) if total_cases > 0 else 0
+    
+    print(f"\n{'='*80}")
+    print("全局测试汇总报告")
+    print("=" * 80)
+    print(f"测试的函数数量: {total_functions}")
+    print(f"执行的测试方法数: {total_methods}")
+    print(f"总测试用例数: {total_cases}")
+    print(f"通过用例数: {total_passed}")
+    print(f"失败用例数: {total_failed}")
+    print(f"整体通过率: {overall_pass_rate}%")
+    
+    # 按函数显示支持的测试方法
+    print(f"\n{'='*60}")
+    print("各函数支持的测试方法:")
+    print("=" * 60)
+    for function_name in SUPPORTED_FUNCTIONS:
+        if function_name in TEST_CASES:
+            methods = list(TEST_CASES[function_name]["test_methods"].keys())
+            print(f"{function_name}:")
+            for i, method in enumerate(methods, 1):
+                method_name = TEST_CASES[function_name]["test_methods"][method]["name"]
+                print(f"  {i}. {method} - {method_name}")
+            print()
+    
+    print(f"{'='*80}")
+    print("测试完成!")
+    print("=" * 80)
