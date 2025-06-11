@@ -49,3 +49,34 @@
         ]
     }
 ```
+
+## 各函数支持的测试方法:
+triangle_judge:
+  1. boundary_basic - 基本边界值测试
+  2. boundary_robust - 健壮边界值测试
+  3. equivalent_weak - 弱一般等价类测试
+  4. equivalent_strong - 强一般等价类测试
+  5. equivalent_weak_robust - 弱健壮等价类测试
+  6. equivalent_strong_robust - 强健壮等价类测试
+
+computer_selling:
+  1. boundary_basic - 基本边界值测试
+  2. boundary_robust - 健壮边界值测试
+
+telecom_system:
+  1. boundary_basic - 基本边界值测试
+  2. boundary_robust - 健壮边界值测试
+  3. equivalent_weak - 弱一般等价类测试
+  4. equivalent_strong - 强一般等价类测试
+  5. equivalent_weak_robust - 弱健壮等价类测试
+  6. equivalent_strong_robust - 强健壮等价类测试
+  7. decision_table - 决策表测试
+
+calendar_problem:
+  1. boundary_basic - 基本边界值测试
+  2. boundary_robust - 健壮边界值测试
+  3. equivalent_weak - 弱一般等价类测试
+  4. equivalent_strong - 强一般等价类测试
+  5. equivalent_weak_robust - 弱健壮等价类测试
+  6. equivalent_strong_robust - 强健壮等价类测试
+  7. decision_table - 决策表测试
