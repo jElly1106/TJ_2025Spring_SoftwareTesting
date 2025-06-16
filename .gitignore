@@ -1,0 +1,4 @@
+/backend/temp
+/backend/.idea
+/backend/app/__pycache__
+*.pyc
