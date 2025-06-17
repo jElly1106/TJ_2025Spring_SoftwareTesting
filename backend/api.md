@@ -73,10 +73,394 @@ telecom_system:
   7. decision_table - 决策表测试
 
 calendar_problem:
-  1. boundary_basic - 基本边界值测试
-  2. boundary_robust - 健壮边界值测试
-  3. equivalent_weak - 弱一般等价类测试
-  4. equivalent_strong - 强一般等价类测试
-  5. equivalent_weak_robust - 弱健壮等价类测试
-  6. equivalent_strong_robust - 强健壮等价类测试
-  7. decision_table - 决策表测试
+    1. boundary_basic - 基本边界值测试
+    2. boundary_robust - 健壮边界值测试
+    3. equivalent_weak - 弱一般等价类测试
+    4. equivalent_strong - 强一般等价类测试
+    5. equivalent_weak_robust - 弱健壮等价类测试
+    6. equivalent_strong_robust - 强健壮等价类测试
+    7. decision_table - 决策表测试
+
+
+
+```Json
+GET /scan_classes
+```
+
+请求参数：
+
+directory：项目根路径,如 D:/P-guard/backend
+
+响应示例
+
+```json
+{
+
+  "data": {
+
+​    "database.redis_config.RedisConfig": {}, // 类名
+
+​    "models.models.City": {
+
+​      "clone": [ // 方法名：[方法参数]
+
+​        { 
+
+​          "annotation": "Any", // 参数类型注解
+
+​          "default": "<object object at 0x00000293491D6C50>", // 参数默认值
+
+​          "kind": "POSITIONAL_OR_KEYWORD", // 参数类型（位置传递或关键字传递）
+
+​          "name": "pk"  //参数名
+
+​        }
+
+​      ],
+
+​      "delete": [
+
+​        {
+
+​          "annotation": "BaseDBAsyncClient | None",
+
+​          "default": "None",
+
+​          "kind": "POSITIONAL_OR_KEYWORD",
+
+​          "name": "using_db"
+
+​        }
+
+​      ],
+
+​      "fetch_related": [
+
+​        {
+
+​          "annotation": "Any",
+
+​          "default": null,
+
+​          "kind": "VAR_POSITIONAL",
+
+​          "name": "args"
+
+​        },
+
+​        {
+
+​          "annotation": "BaseDBAsyncClient | None",
+
+​          "default": "None",
+
+​          "kind": "KEYWORD_ONLY",
+
+​          "name": "using_db"
+
+​        }
+
+​      ],
+
+​      "refresh_from_db": [
+
+​        {
+
+​          "annotation": "Iterable[str] | None",
+
+​          "default": "None",
+
+​          "kind": "POSITIONAL_OR_KEYWORD",
+
+​          "name": "fields"
+
+​        },
+
+​        {
+
+​          "annotation": "BaseDBAsyncClient | None",
+
+​          "default": "None",
+
+​          "kind": "POSITIONAL_OR_KEYWORD",
+
+​          "name": "using_db"
+
+​        }
+
+​      ],
+
+​      "save": [
+
+​        {
+
+​          "annotation": "BaseDBAsyncClient | None",
+
+​          "default": "None",
+
+​          "kind": "POSITIONAL_OR_KEYWORD",
+
+​          "name": "using_db"
+
+​        },
+
+​        {
+
+​          "annotation": "Iterable[str] | None",
+
+​          "default": "None",
+
+​          "kind": "POSITIONAL_OR_KEYWORD",
+
+​          "name": "update_fields"
+
+​        },
+
+​        {
+
+​          "annotation": "bool",
+
+​          "default": "False",
+
+​          "kind": "POSITIONAL_OR_KEYWORD",
+
+​          "name": "force_create"
+
+​        },
+
+​        {
+
+​          "annotation": "bool",
+
+​          "default": "False",
+
+​          "kind": "POSITIONAL_OR_KEYWORD",
+
+​          "name": "force_update"
+
+​        }
+
+​      ],
+
+​      "update_from_dict": [
+
+​        {
+
+​          "annotation": "dict",
+
+​          "default": null,
+
+​          "kind": "POSITIONAL_OR_KEYWORD",
+
+​          "name": "data"
+
+​        }
+
+​      ]
+
+​    },
+
+},
+
+  "success": true
+
+}
+```
+
+```json
+Get /scan_functions
+```
+
+请求参数：
+
+directory：项目根路径,如 D:/P-guard/backend
+
+响应示例
+
+```json
+{
+  "data": {
+    "controller.detectController": [
+      {
+        "args": [
+          "plotId",
+          "user"
+        ],
+        "async": true,
+        "name": "validate_plot_access"
+      },
+      {
+        "args": [
+          "plotId",
+          "name",
+          "advice",
+          "save_path"
+        ],
+        "async": true,
+        "name": "call_set_log"
+      },
+      ],
+      "controller.logController": [
+      {
+        "args": [
+          "plotId",
+          "diseaseName",
+          "advice",
+          "imageURL"
+        ],
+        "async": true,
+        "name": "set_log"
+      },
+      {
+        "args": [
+          "plotId"
+        ],
+        "async": true,
+        "name": "get_logs"
+      }
+	  ]
+    },
+  "success": true
+}
+```
+
+```json
+Post /run_unit_test
+```
+
+请求体（表单）：
+
+directory：项目根路径,如 D:/P-guard/backend
+
+root: 项目根路径
+
+class_name:service.log
+
+method_name:analyze_plot_details
+
+mock_config:{'service.log.get_prediction_by_name':{'_async_mock':'True','mock_value':'p'}}
+
+excel_file: test_case.xlsx
+
+```
+Excel文件格式（参考仓库/backend/resource目录下的.xlsx文件）：
+- 第一行：列名（ID、测试方法、测试描述、期望结果、属性名等）
+- 第二行：数据类型（对应每列的数据类型）
+- 第三行开始：测试数据
+```
+
+响应示例
+
+```json
+{
+  "class": "service.log",
+  "description": "ss",
+  "message": "单元测试执行完成",
+  "method_name": "analyze_plot_details",
+  "mock_config": {
+    "service.log.get_prediction_by_name": {
+      "_async_mock": "True",
+      "mock_value": "p"
+    }
+  },
+  "success": true,
+  "summary": {
+    "failed_cases": 3,
+    "pass_rate": "0.0%",
+    "passed_cases": 0,
+    "total_cases": 3
+  },
+  "test_method": "ss",
+  "test_name": "ss",
+  "test_results": [
+    {
+      "Actual": {
+        "disease_count": {},
+        "monthly_disease_count": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "plant_disease_count": {},
+        "plant_plot_count": {
+          "植物A": 1
+        },
+        "plot_count": 1,
+        "prediction": "p"
+      },
+      "Duration": "0ms",
+      "Expected": "{'plot_count': 0, 'plant_plot_count': {}, 'monthly_disease_count': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 'plant_disease_count': {}, 'disease_count': {}, 'prediction': 'mocked_prediction'}",
+      "ID": 1,
+      "Passed": false
+    },
+    {
+      "Actual": {
+        "disease_count": {},
+        "monthly_disease_count": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "plant_disease_count": {},
+        "plant_plot_count": {
+          "植物A": 1
+        },
+        "plot_count": 1,
+        "prediction": "p"
+      },
+      "Duration": "0ms",
+      "Expected": "{'plot_count': 0, 'plant_plot_count': {}, 'monthly_disease_count': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], 'plant_disease_count': {}, 'disease_count': {}, 'prediction': 'mocked_prediction'}",
+      "ID": 2,
+      "Passed": false
+    },
+    {
+      "Actual": {
+        "disease_count": {},
+        "monthly_disease_count": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "plant_disease_count": {},
+        "plant_plot_count": {
+          "植物A": 1
+        },
+        "plot_count": 1,
+        "prediction": "p"
+      },
+      "Duration": "0ms",
+      "Expected": "{'plot_count': 0, 'plant_plot_count': {}, 'monthly_disease_count': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2], 'plant_disease_count': {}, 'disease_count': {}, 'prediction': 'mocked_prediction'}",
+      "ID": 3,
+      "Passed": false
+    }
+  ]
+}
+```
+

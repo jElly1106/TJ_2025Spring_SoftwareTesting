@@ -11,14 +11,13 @@ import pandas as pd
 unit_bp = Blueprint("unit", __name__)
 
 
-@unit_bp.route("/scan_classes", methods=["POST"])
+@unit_bp.route("/scan_classes", methods=["GET"])
 def scan_directory():
     """
     扫描指定目录，返回 {类名: {方法名: [参数信息, ...]}} 的字典结构
     请求 JSON: { "directory": "路径" }
     """
-    data = request.get_json()
-    directory = data.get("directory")
+    directory = request.args.get("directory")
 
     if not directory or not os.path.isdir(directory):
         return jsonify({"success": False, "message": "无效目录路径"}), 400
@@ -26,10 +25,9 @@ def scan_directory():
     class_map = scan_service.scan_classes_in_directory(directory)
     return jsonify({"success": True, "data": class_map})
 
-@unit_bp.route("/scan_functions", methods=["POST"])
+@unit_bp.route("/scan_functions", methods=["GET"])
 def scan_functions():
-    data = request.get_json()
-    directory = data.get("directory")
+    directory = request.args.get("directory")
 
     if not directory or not os.path.exists(directory):
         return jsonify({"success": False, "error": "Invalid project directory"}), 400
@@ -180,6 +178,7 @@ def run_unit_test():
         return jsonify(response)
 
     except Exception as e:
+        print(e)
         return jsonify({
             "success": False,
             "message": f"执行单元测试时发生错误: {str(e)}",

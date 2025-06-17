@@ -68,11 +68,9 @@ class UnitTestService:
                     # 单个用例执行失败
                     test_results.append({
                         "ID": test_case.get("ID", "unknown"),
-                        "Input": self._extract_input_params(test_case, param_types),
                         "Expected": test_case.get("期望结果", "N/A"),
                         "Actual": None,
                         "Passed": False,
-                        "Bug": f"测试执行异常: {str(e)}",
                         "Duration": "0ms"
                     })
 
@@ -236,7 +234,7 @@ class UnitTestService:
                     if mock_value is None:
                         mock_obj = MagicMock(return_value=None)
                     elif isinstance(mock_value, dict):
-                        mock_obj = MagicMock(return_value=mock_value)
+                        mock_obj = MagicMock(return_value=mock_value['mock_value'])
                     elif isinstance(mock_value, (list, tuple)):
                         mock_obj = MagicMock(return_value=mock_value)
                     else:
@@ -309,22 +307,18 @@ class UnitTestService:
 
             return {
                 "ID": case_id,
-                "Input": input_params,
                 "Expected": expected,
                 "Actual": actual,
                 "Passed": passed,
-                "Bug": None if passed else f"期望: {expected}, 实际: {actual}",
                 "Duration": duration
             }
 
         except Exception as e:
             return {
                 "ID": case_id,
-                "Input": self._extract_input_params(test_case, param_types),
                 "Expected": expected,
                 "Actual": None,
                 "Passed": False,
-                "Bug": str(e),
                 "Duration": "0ms"
             }
 
@@ -362,22 +356,18 @@ class UnitTestService:
 
             return {
                 "ID": case_id,
-                "Input": input_params,
                 "Expected": expected,
                 "Actual": actual,
                 "Passed": passed,
-                "Bug": None if passed else f"期望: {expected}, 实际: {actual}",
                 "Duration": duration
             }
 
         except Exception as e:
             return {
                 "ID": case_id,
-                "Input": self._extract_input_params(test_case, param_types),
                 "Expected": expected,
                 "Actual": None,
                 "Passed": False,
-                "Bug": str(e),
                 "Duration": "0ms"
             }
 
