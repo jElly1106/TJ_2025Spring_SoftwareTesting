@@ -40,7 +40,7 @@ class ExcelTestCaseLoader:
             test_description = first_row.get("测试描述", "") if "测试描述" in columns else ""
 
             # 创建参数类型映射（排除系统列）
-            system_columns = ['ID', '期望结果', '测试方法', '测试名称', '测试描述']
+            system_columns = ['ID', '测试方法', '测试名称', '测试描述']
             param_types = {}
 
             for i, col in enumerate(columns):
@@ -299,7 +299,7 @@ class TestCaseObjectBuilder:
             converted_case = case.copy()
 
             # 系统字段不进行转换
-            system_fields = ['ID', '期望结果', '测试方法', '测试名称', '测试描述']
+            system_fields = ['ID', '测试方法', '测试名称', '测试描述']
 
             for param_name, param_type in param_types.items():
                 if param_name in converted_case and param_name not in system_fields:
