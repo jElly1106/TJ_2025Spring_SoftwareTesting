@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 import os
-from app.data.static_data import HOMEWORK_CODES, SUPPORTED_FUNCTIONS, SUPPORTED_TEST_METHODS
+from app.static.homework_data import HOMEWORK_CODES, SUPPORTED_FUNCTIONS, SUPPORTED_TEST_METHODS
 from app.service.homework import generate_test_cases
 homework_bp = Blueprint('homework', __name__)
 
