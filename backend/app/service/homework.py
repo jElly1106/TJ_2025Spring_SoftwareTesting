@@ -6,7 +6,7 @@ from typing import List, Dict, Any
 
 
 
-from app.data.static_data import TEST_CASES, SUPPORTED_TEST_METHODS, SUPPORTED_FUNCTIONS
+from app.static.homework_data import TEST_CASES, SUPPORTED_TEST_METHODS, SUPPORTED_FUNCTIONS
 
 def generate_test_cases(code: str, function_name: str, test_method: str) -> Dict[str, Any]:
     """
