@@ -165,7 +165,7 @@ def get_get_plot_by_id_predefined_cases():
     """
     try:
         service = PlotControllerTestService()
-        test_cases = asyncio.run(service.get_get_plot_by_id_predefined_cases())
+        test_cases = service.get_get_plot_by_id_predefined_cases()
         
         return jsonify({
             "message": "获取预定义测试用例成功",
