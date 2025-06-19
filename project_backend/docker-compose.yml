@@ -1,0 +1,19 @@
+version: '2.1'
+
+services:
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PWD: ${DB_PWD}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: 6379
+      REDIS_DB: 0
+      SECRET_KEY: ${SECRET_KEY}
+      ALGORITHM: HS256
+    volumes:
+      - ./backend/resource:/app/resource

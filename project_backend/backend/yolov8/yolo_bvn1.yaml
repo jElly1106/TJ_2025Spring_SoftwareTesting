@@ -1,0 +1,7 @@
+train: D:\Microsoft\yolov8\ultralytics-main\datasets\Potato_data\images\train # train images (relative to 'path') 90% of 847 train images
+val: D:\Microsoft\yolov8\ultralytics-main\datasets\Potato_data\images\val # train images (relative to 'path') 10% of 847 train images
+test: D:\Microsoft\yolov8\ultralytics-main\datasets\Potato_data\images\test
+# Classes
+nc: 3
+
+names: ['Potato_Early_blightt' ,'Potato_Late_blight','Potato_Health']
