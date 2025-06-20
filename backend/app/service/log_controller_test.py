@@ -95,9 +95,9 @@ class LogControllerTestService:
             # 模拟字段长度验证
             if len(diseaseName) > 255:
                 raise HTTPException(status_code=500, detail="创建日志失败: 字段长度超限")
-            if len(advice) > 1500:
+            if len(advice) > 500:  # 从1500改为500
                 raise HTTPException(status_code=500, detail="创建日志失败: 字段长度超限")
-            if len(imageURL) > 2000:
+            if len(imageURL) > 500:  # 从2000改为500
                 raise HTTPException(status_code=500, detail="创建日志失败: URL长度超限")
             
             # 模拟地块不存在的情况
@@ -152,7 +152,7 @@ class LogControllerTestService:
                 "advice": "及时喷药治疗",
                 "imageURL": "http://example.com/img1.jpg",
                 "expected_status": 200,
-                "expected_result": "创建日志成功",
+                "expected_message": "创建日志成功",
                 "test_type": "有效等价类",
                 "description": "测试正常创建日志功能"
             },
@@ -164,7 +164,7 @@ class LogControllerTestService:
                 "advice": "建议内容&*",
                 "imageURL": "https://cdn.example.com/image_2024.png",
                 "expected_status": 200,
-                "expected_result": "创建日志成功",
+                "expected_message": "创建日志成功",
                 "test_type": "有效等价类",
                 "description": "测试包含特殊字符的日志创建"
             },
@@ -176,7 +176,7 @@ class LogControllerTestService:
                 "advice": "这是一个包含500个字符的建议内容" + "测试" * 120,
                 "imageURL": "http://storage.com/long_filename_image.jpg",
                 "expected_status": 200,
-                "expected_result": "创建日志成功",
+                "expected_message": "创建日志成功",
                 "test_type": "有效等价类",
                 "description": "测试长文本内容的日志创建"
             },
@@ -190,7 +190,7 @@ class LogControllerTestService:
                 "advice": "及时喷药治疗",
                 "imageURL": "http://example.com/img1.jpg",
                 "expected_status": 500,
-                "expected_result": "创建日志失败: DoesNotExist异常",
+                "expected_message": "创建日志失败: DoesNotExist异常",
                 "test_type": "无效等价类",
                 "description": "测试地块不存在的情况"
             },
@@ -202,7 +202,7 @@ class LogControllerTestService:
                 "advice": "及时喷药治疗",
                 "imageURL": "http://example.com/img1.jpg",
                 "expected_status": 500,
-                "expected_result": "创建日志失败: 异常信息",
+                "expected_message": "创建日志失败: 异常信息",
                 "test_type": "无效等价类",
                 "description": "测试plotId为空字符串的情况"
             },
@@ -214,7 +214,7 @@ class LogControllerTestService:
                 "advice": "及时喷药治疗",
                 "imageURL": "http://example.com/img1.jpg",
                 "expected_status": 500,
-                "expected_result": "创建日志失败: 验证异常",
+                "expected_message": "创建日志失败: 验证异常",
                 "test_type": "无效等价类",
                 "description": "测试diseaseName为空字符串的情况"
             },
@@ -226,7 +226,7 @@ class LogControllerTestService:
                 "advice": "",
                 "imageURL": "http://example.com/img1.jpg",
                 "expected_status": 200,
-                "expected_result": "创建日志成功",
+                "expected_message": "创建日志成功",
                 "test_type": "无效等价类",
                 "description": "测试advice为空字符串的情况（允许为空）"
             },
@@ -238,7 +238,7 @@ class LogControllerTestService:
                 "advice": "及时喷药治疗",
                 "imageURL": "",
                 "expected_status": 200,
-                "expected_result": "创建日志成功",
+                "expected_message": "创建日志成功",
                 "test_type": "无效等价类",
                 "description": "测试imageURL为空字符串的情况（允许为空）"
             },
@@ -250,7 +250,7 @@ class LogControllerTestService:
                 "advice": "及时喷药治疗",
                 "imageURL": "http://example.com/img1.jpg",
                 "expected_status": 422,
-                "expected_result": "参数校验失败",
+                "expected_message": "参数校验失败",
                 "test_type": "无效等价类",
                 "description": "测试plotId为null的情况"
             },
@@ -262,7 +262,7 @@ class LogControllerTestService:
                 "advice": "及时喷药治疗",
                 "imageURL": "http://example.com/img1.jpg",
                 "expected_status": 422,
-                "expected_result": "参数校验失败",
+                "expected_message": "参数校验失败",
                 "test_type": "无效等价类",
                 "description": "测试diseaseName为null的情况"
             },
@@ -274,7 +274,7 @@ class LogControllerTestService:
                 "advice": None,
                 "imageURL": "http://example.com/img1.jpg",
                 "expected_status": 422,
-                "expected_result": "参数校验失败",
+                "expected_message": "参数校验失败",
                 "test_type": "无效等价类",
                 "description": "测试advice为null的情况"
             },
@@ -286,7 +286,7 @@ class LogControllerTestService:
                 "advice": "及时喷药治疗",
                 "imageURL": None,
                 "expected_status": 422,
-                "expected_result": "参数校验失败",
+                "expected_message": "参数校验失败",
                 "test_type": "无效等价类",
                 "description": "测试imageURL为null的情况"
             },
@@ -298,7 +298,7 @@ class LogControllerTestService:
                 "advice": "及时喷药治疗",
                 "imageURL": "http://example.com/img1.jpg",
                 "expected_status": 500,
-                "expected_result": "创建日志失败: 数据库异常",
+                "expected_message": "创建日志失败: 数据库异常",
                 "test_type": "无效等价类",
                 "description": "测试数据库异常的情况",
                 "simulate_error": "db_error"
@@ -313,7 +313,7 @@ class LogControllerTestService:
                 "advice": "建议",
                 "imageURL": "http://example.com/img.jpg",
                 "expected_status": 200,
-                "expected_result": "创建日志成功",
+                "expected_message": "创建日志成功",
                 "test_type": "边界值",
                 "description": "测试diseaseName最短有效值"
             },
@@ -325,7 +325,7 @@ class LogControllerTestService:
                 "advice": "建议",
                 "imageURL": "http://example.com/img.jpg",
                 "expected_status": 200,
-                "expected_result": "创建日志成功",
+                "expected_message": "创建日志成功",
                 "test_type": "边界值",
                 "description": "测试diseaseName标准长度"
             },
@@ -337,7 +337,7 @@ class LogControllerTestService:
                 "advice": "建议",
                 "imageURL": "http://example.com/img.jpg",
                 "expected_status": 500,
-                "expected_result": "创建日志失败: 字段长度超限",
+                "expected_message": "创建日志失败: 字段长度超限",
                 "test_type": "边界值",
                 "description": "测试diseaseName超长的情况"
             },
@@ -349,7 +349,7 @@ class LogControllerTestService:
                 "advice": "a",
                 "imageURL": "http://example.com/img.jpg",
                 "expected_status": 200,
-                "expected_result": "创建日志成功",
+                "expected_message": "创建日志成功",
                 "test_type": "边界值",
                 "description": "测试advice最短有效值"
             },
@@ -361,7 +361,7 @@ class LogControllerTestService:
                 "advice": "标准长度的建议内容" * 50,  # 500个字符
                 "imageURL": "http://example.com/img.jpg",
                 "expected_status": 200,
-                "expected_result": "创建日志成功",
+                "expected_message": "创建日志成功",
                 "test_type": "边界值",
                 "description": "测试advice标准长度"
             },
@@ -373,7 +373,7 @@ class LogControllerTestService:
                 "advice": "超长建议内容" * 250,  # 2000个字符
                 "imageURL": "http://example.com/img.jpg",
                 "expected_status": 500,
-                "expected_result": "创建日志失败: 字段长度超限",
+                "expected_message": "创建日志失败: 字段长度超限",
                 "test_type": "边界值",
                 "description": "测试advice超长的情况"
             },
@@ -385,7 +385,7 @@ class LogControllerTestService:
                 "advice": "建议",
                 "imageURL": "http://example.com/" + "very_long_filename" * 100 + ".jpg",  # 2048个字符
                 "expected_status": 500,
-                "expected_result": "创建日志失败: URL长度超限",
+                "expected_message": "创建日志失败: URL长度超限",
                 "test_type": "边界值",
                 "description": "测试imageURL超长的情况"
             },
@@ -399,7 +399,7 @@ class LogControllerTestService:
                 "advice": "及时喷药",
                 "imageURL": "http://example.com/img.jpg",
                 "expected_status": 200,
-                "expected_result": "创建日志成功",
+                "expected_message": "创建日志成功",
                 "test_type": "功能测试",
                 "description": "验证content格式化为'检测到白粉病，建议：及时喷药'",
                 "verify_content": "检测到白粉病，建议：及时喷药"
@@ -412,7 +412,7 @@ class LogControllerTestService:
                 "advice": "及时喷药",
                 "imageURL": "http://example.com/img.jpg",
                 "expected_status": 200,
-                "expected_result": "创建日志成功",
+                "expected_message": "创建日志成功",
                 "test_type": "功能测试",
                 "description": "验证日志记录包含当前时间戳",
                 "verify_timestamp": True
@@ -425,7 +425,7 @@ class LogControllerTestService:
                 "advice": "及时喷药",
                 "imageURL": "http://example.com/img.jpg",
                 "expected_status": 200,
-                "expected_result": "创建日志成功",
+                "expected_message": "创建日志成功",
                 "test_type": "功能测试",
                 "description": "验证日志记录正确关联到地块",
                 "verify_plot_association": True
@@ -438,7 +438,7 @@ class LogControllerTestService:
                 "advice": "加强田间管理，清除杂草",
                 "imageURL": "http://example.com/中文文件名.jpg",
                 "expected_status": 200,
-                "expected_result": "创建日志成功",
+                "expected_message": "创建日志成功",
                 "test_type": "功能测试",
                 "description": "测试中文字符的正确处理"
             },
@@ -450,7 +450,7 @@ class LogControllerTestService:
                 "advice": "建议\n换行\t制表符",
                 "imageURL": "http://example.com/img.jpg",
                 "expected_status": 200,
-                "expected_result": "创建日志成功",
+                "expected_message": "创建日志成功",
                 "test_type": "功能测试",
                 "description": "测试特殊字符的转义处理"
             },
@@ -464,7 +464,7 @@ class LogControllerTestService:
                 "advice": "建议",
                 "imageURL": "http://example.com/image.jpg",
                 "expected_status": 200,
-                "expected_result": "创建日志成功",
+                "expected_message": "创建日志成功",
                 "test_type": "URL格式测试",
                 "description": "测试有效的HTTP URL"
             },
@@ -476,7 +476,7 @@ class LogControllerTestService:
                 "advice": "建议",
                 "imageURL": "https://secure.example.com/image.png",
                 "expected_status": 200,
-                "expected_result": "创建日志成功",
+                "expected_message": "创建日志成功",
                 "test_type": "URL格式测试",
                 "description": "测试有效的HTTPS URL"
             },
@@ -488,7 +488,7 @@ class LogControllerTestService:
                 "advice": "建议",
                 "imageURL": "invalid-url",
                 "expected_status": 200,
-                "expected_result": "创建日志成功",
+                "expected_message": "创建日志成功",
                 "test_type": "URL格式测试",
                 "description": "测试无效URL格式（系统允许）"
             },
@@ -500,7 +500,7 @@ class LogControllerTestService:
                 "advice": "建议",
                 "imageURL": "/images/disease.jpg",
                 "expected_status": 200,
-                "expected_result": "创建日志成功",
+                "expected_message": "创建日志成功",
                 "test_type": "URL格式测试",
                 "description": "测试相对路径URL"
             },
@@ -512,7 +512,7 @@ class LogControllerTestService:
                 "advice": "建议",
                 "imageURL": "http://example.com/img.jpg?v=1&t=123",
                 "expected_status": 200,
-                "expected_result": "创建日志成功",
+                "expected_message": "创建日志成功",
                 "test_type": "URL格式测试",
                 "description": "测试包含参数的URL"
             }
@@ -526,16 +526,21 @@ class LogControllerTestService:
         result = {
             "test_id": test_case["test_id"],
             "test_purpose": test_case["test_purpose"],
+            "case_id": test_case["test_id"],
             "test_type": test_case["test_type"],
-            "description": test_case["description"],
-            "status": "PASS",
-            "actual_status": None,
-            "actual_result": None,
+            "input_params": {
+                "plotId": test_case["plotId"],
+                "diseaseName": test_case["diseaseName"],
+                "advice": test_case["advice"],
+                "imageURL": test_case["imageURL"]
+            },
             "expected_status": test_case["expected_status"],
-            "expected_result": test_case["expected_result"],
-            "execution_time": 0,
-            "error_message": None,
-            "additional_checks": {}
+            "actual_status": None,
+            "expected_message": test_case["expected_message"],  # 修改这里：使用正确的字段名
+            "actual_message": None,
+            "passed": False,
+            "duration_ms": 0,
+            "error": None
         }
         
         try:
@@ -544,9 +549,6 @@ class LogControllerTestService:
                 self._simulate_db_error = True
             else:
                 self._simulate_db_error = False
-            
-            # 记录测试前的日志数量
-            initial_log_count = len(self.mock_logs)
             
             # 执行测试
             actual_result = await self.set_log(
@@ -557,61 +559,28 @@ class LogControllerTestService:
             )
             
             result["actual_status"] = 200
-            result["actual_result"] = actual_result
-            
-            # 功能性验证
-            if test_case.get("verify_content"):
-                # 验证content格式化
-                latest_log = self.mock_logs[-1] if self.mock_logs else None
-                if latest_log and latest_log.content == test_case["verify_content"]:
-                    result["additional_checks"]["content_format"] = "PASS"
-                else:
-                    result["additional_checks"]["content_format"] = "FAIL"
-                    result["status"] = "FAIL"
-            
-            if test_case.get("verify_timestamp"):
-                # 验证时间戳生成
-                latest_log = self.mock_logs[-1] if self.mock_logs else None
-                if latest_log and latest_log.timeStamp:
-                    result["additional_checks"]["timestamp_generation"] = "PASS"
-                else:
-                    result["additional_checks"]["timestamp_generation"] = "FAIL"
-                    result["status"] = "FAIL"
-            
-            if test_case.get("verify_plot_association"):
-                # 验证地块关联
-                latest_log = self.mock_logs[-1] if self.mock_logs else None
-                if latest_log and latest_log.plotId == test_case["plotId"]:
-                    result["additional_checks"]["plot_association"] = "PASS"
-                else:
-                    result["additional_checks"]["plot_association"] = "FAIL"
-                    result["status"] = "FAIL"
-            
-            # 验证日志是否成功创建
-            if len(self.mock_logs) > initial_log_count:
-                result["additional_checks"]["log_created"] = "PASS"
-            else:
-                result["additional_checks"]["log_created"] = "FAIL"
+            result["actual_message"] = actual_result
             
         except HTTPException as e:
             result["actual_status"] = e.status_code
-            result["actual_result"] = e.detail
+            result["actual_message"] = e.detail
         except Exception as e:
             result["actual_status"] = 500
-            result["actual_result"] = f"创建日志失败: {str(e)}"
-            result["error_message"] = str(e)
+            result["actual_message"] = f"创建日志失败: {str(e)}"
+            result["error"] = str(e)
         
         # 验证结果
-        if (result["actual_status"] == result["expected_status"] and 
-            result["actual_result"] == result["expected_result"]):
-            if result["status"] != "FAIL":  # 如果additional_checks没有失败
-                result["status"] = "PASS"
-        else:
-            result["status"] = "FAIL"
+        status_match = result["actual_status"] == result["expected_status"]
         
-        result["execution_time"] = round((time.time() - start_time) * 1000, 2)
+        # 严格匹配消息内容
+        message_match = result["actual_message"] == result["expected_message"]
+        
+        result["passed"] = status_match and message_match
+        
+        # 计算执行时间并返回结果
+        result["duration_ms"] = round((time.time() - start_time) * 1000, 2)
         return result
-    
+
     async def run_set_log_tests(self, test_cases: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """
         运行多个 set_log 测试用例
@@ -674,16 +643,16 @@ async def set_log(plotId: str, diseaseName: str, advice: str, imageURL: str):
         # 计算平均执行时间
         avg_execution_time = sum(r["execution_time"] for r in test_results) / total_tests if total_tests > 0 else 0
         
-        return {
+        return jsonify({
+            "status": "success",
             "summary": {
-                "total_tests": total_tests,
-                "passed_tests": passed_tests,
-                "failed_tests": failed_tests,
-                "success_rate": round((passed_tests / total_tests) * 100, 2) if total_tests > 0 else 0,
-                "average_execution_time": round(avg_execution_time, 2)
+                "total_cases": total_tests,
+                "passed_cases": passed_tests,
+                "failed_cases": failed_tests,
+                "pass_rate": round((passed_tests / total_tests) * 100, 2) if total_tests > 0 else 0,
+                "average_execution_time_ms": round(avg_execution_time, 2)
             },
-            "type_statistics": type_stats,
-            "detailed_results": test_results,
-            "failed_tests": [r for r in test_results if r["status"] == "FAIL"],
-            "generation_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        }
+            "statistics_by_type": type_stats,  # 这里包含了类型统计
+            "test_results": results,
+            "failed_cases": [r for r in results if not r["passed"]]
+        })

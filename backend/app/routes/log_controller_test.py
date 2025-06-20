@@ -24,14 +24,38 @@ def test_set_log():
         test_cases = data['test_cases']
         results = asyncio.run(log_test_service.run_set_log_tests(test_cases))
         
+        # 统一数据格式
+        total_tests = len(results)
+        passed_tests = len([r for r in results if r["passed"]])
+        failed_tests = total_tests - passed_tests
+        
+        # 按测试类型分组统计
+        type_stats = {}
+        for result in results:
+            test_type = result["test_type"]
+            if test_type not in type_stats:
+                type_stats[test_type] = {"total": 0, "passed": 0, "failed": 0}
+            type_stats[test_type]["total"] += 1
+            if result["passed"]:
+                type_stats[test_type]["passed"] += 1
+            else:
+                type_stats[test_type]["failed"] += 1
+        
+        # 计算平均执行时间
+        avg_execution_time = sum(r["duration_ms"] for r in results) / total_tests if total_tests > 0 else 0
+        
         return jsonify({
             "status": "success",
-            "results": results,
             "summary": {
-                "total": len(results),
-                "passed": len([r for r in results if r["status"] == "PASS"]),
-                "failed": len([r for r in results if r["status"] == "FAIL"])
-            }
+                "total_cases": total_tests,
+                "passed_cases": passed_tests,
+                "failed_cases": failed_tests,
+                "pass_rate": round((passed_tests / total_tests) * 100, 2) if total_tests > 0 else 0,
+                "average_execution_time_ms": round(avg_execution_time, 2)
+            },
+            "statistics_by_type": type_stats,
+            "test_results": results,
+            "failed_cases": [r for r in results if not r["passed"]]
         })
     
     except Exception as e:
@@ -65,19 +89,47 @@ def run_set_log_all_tests():
     """
     try:
         results = asyncio.run(log_test_service.run_set_log_tests_batch())
-        report = log_test_service.generate_test_report(results)
+        
+        # 统一数据格式
+        total_tests = len(results)
+        passed_tests = len([r for r in results if r["passed"]])
+        failed_tests = total_tests - passed_tests
+        
+        # 按测试类型分组统计
+        type_statistics = {}
+        for result in results:
+            test_type = result["test_type"]
+            if test_type not in type_statistics:
+                type_statistics[test_type] = {"total": 0, "passed": 0}
+            type_statistics[test_type]["total"] += 1
+            if result["passed"]:
+                type_statistics[test_type]["passed"] += 1
+        
+        # 计算平均执行时间
+        avg_execution_time = sum(r["duration_ms"] for r in results) / total_tests if total_tests > 0 else 0
+        
+        # 计算通过率
+        pass_rate = f"{(passed_tests/total_tests*100):.1f}%" if total_tests > 0 else "0.0%"
         
         return jsonify({
-            "status": "success",
-            "report": report
+            "success": True,
+            "summary": {
+                "total_cases": total_tests,
+                "passed_cases": passed_tests,
+                "failed_cases": failed_tests,
+                "pass_rate": pass_rate,
+                "avg_duration_ms": round(avg_execution_time, 2),
+                "type_statistics": type_statistics
+            },
+            "test_results": results
         })
     
     except Exception as e:
         return jsonify({
-            "error": "Batch test execution failed",
-            "message": str(e)
+            "success": False,
+            "error": str(e)
         }), 500
-
+        
 @log_test_bp.route('/set_log_function_source', methods=['GET'])
 def get_set_log_function_source():
     """

@@ -109,7 +109,8 @@ def run_all_plot_tests():
         
         return jsonify({
             "success": True,
-            "batch_result": batch_result,
+            "test_results": batch_result["test_results"],  # 直接提取test_results
+            "execution_info": batch_result["execution_info"],  # 添加执行信息
             "summary": test_service.generate_module_summary(
                 batch_result["test_results"], 
                 "add_plot"
@@ -224,7 +225,8 @@ def run_all_plot_detail_tests():
         
         return jsonify({
             "success": True,
-            "batch_result": batch_result,
+            "test_results": batch_result["test_results"],  # 只返回测试结果部分
+            "execution_info": batch_result["execution_info"],  # 添加执行信息
             "summary": test_service.generate_module_summary(
                 batch_result["test_results"], 
                 "get_plot_detail"

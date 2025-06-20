@@ -1082,16 +1082,16 @@ class PlotControllerTestService:
         获取get_plot_by_id函数的源代码
         """
         return '''
-async def get_plot_by_id(plotId: str):
-    try:
-        # 同时预加载 userId 和 plantId 的关联数据
-        plot = await Plot.get(plotId=plotId).select_related("userId", "plantId")
+        async def get_plot_by_id(plotId: str):
+            try:
+                # 同时预加载 userId 和 plantId 的关联数据
+                plot = await Plot.get(plotId=plotId).select_related("userId", "plantId")
 
-        if plot:
-            return plot
+                if plot:
+                    return plot
 
-    except Exception as e:
-        raise HTTPException(status_code=404, detail=str(e))
+            except Exception as e:
+                raise HTTPException(status_code=404, detail=str(e))
         '''
     
     def generate_get_plot_by_id_test_report(self, test_results: List[Dict[str, Any]]) -> Dict[str, Any]:
