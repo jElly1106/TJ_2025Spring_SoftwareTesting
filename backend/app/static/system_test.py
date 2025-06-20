@@ -74,7 +74,11 @@ WAIT_CONFIG = {
     "weather_info_delay": 3,
     "input_delay": 0.3,
     "click_delay": 0.5,
-    "scroll_delay": 0.5
+    "scroll_delay": 0.5,
+    "modal_delay": 0.5,        # 模态框出现等待时间
+    "dropdown_delay": 0.5,     # 下拉框展开等待时间
+    "log_loading_delay": 0.5,    # 日志加载等待时间
+    "log_scroll_delay": 0.5,     # 日志滚动等待时间
 }
 
 # 检测结果等待配置
@@ -253,7 +257,83 @@ SELECTORS = {
         "ion-app",
         "ion-content",
         "[ng-version]"
-    ]
+    ],
+    
+    "plot_creation": {
+        "add_fab_button": [
+            "ion-fab-button",
+            "ion-fab ion-fab-button",
+            "[data-testid='add-plot-button']"
+        ],
+        "modal": [
+            "ion-modal[is-open='true']",
+            "ion-modal .modal-wrapper"
+        ],
+        "plot_name_input": [
+            "ion-input[placeholder*='地块名称'] input",
+            "ion-input[placeholder*='请输入地块名称'] input",
+            "ion-item ion-input input",
+            "input[placeholder*='地块']"
+        ],
+        "plant_select": [
+            "ion-select[placeholder*='选择作物']",
+            "ion-select[placeholder*='作物']",
+            "ion-item ion-select",
+            "ion-select"
+        ],
+        "submit_button": [
+            "ion-button[expand='full']",
+            "ion-button:contains('提交')",
+            "ion-modal ion-button",
+            "button[type='submit']"
+        ],
+        "close_button": [
+            "ion-buttons ion-button",
+            "ion-button:contains('关闭')"
+        ]
+    },
+    
+    "plot_logs": {
+        "log_list": [
+            "ion-list",
+            "ion-content ion-list",
+            "[class*='log-list']",
+            "[data-testid='log-list']"
+        ],
+        "log_items": [
+            "ion-list ion-item",
+            "ion-item",
+            ".log-item",
+            "[class*='log-entry']"
+        ],
+        "log_content": [
+            "ion-item ion-label",
+            "ion-label",
+            "ion-item p",
+            ".log-content",
+            ".log-text"
+        ],
+        "log_timestamp": [
+            "ion-item ion-note",
+            "ion-note",
+            ".timestamp",
+            ".log-time",
+            "[class*='time']"
+        ],
+        "log_type": [
+            "ion-item ion-badge",
+            "ion-badge",
+            ".log-type",
+            ".log-category",
+            "[class*='badge']"
+        ],
+        "empty_state": [
+            "ion-card ion-card-content",
+            ".empty-state",
+            ".no-logs",
+            "[class*='empty']"
+        ]
+    }
 }
 
 # JavaScript脚本配置
@@ -645,6 +725,50 @@ TEST_CASES_CONFIG = {
         "expected_result": "显示用户当地天气信息",
         "test_type": "端到端测试",
         "priority": "中"
+    },
+    
+    "plot_management": {
+        "test_id": "E2E_TC_003",
+        "test_name": "地块管理完整流程测试",
+        "test_purpose": "验证用户创建地块和删除地块的完整业务流程",
+        "test_steps": [
+            "用户访问网站",
+            "用户输入用户名密码并登录",
+            "系统跳转到首页",
+            "用户点击添加地块按钮",
+            "用户填写地块名称",
+            "用户选择第一种植物",
+            "用户提交创建地块",
+            "系统创建地块成功",
+            "用户点击新创建的地块",
+            "用户点击更多选项按钮",
+            "用户选择删除地块选项",
+            "用户确认删除操作",
+            "系统删除地块成功并返回首页"
+        ],
+        "expected_result": "成功创建地块并成功删除地块",
+        "test_type": "端到端测试",
+        "priority": "高"
+    },
+    
+    "plot_logs": {
+        "test_id": "E2E_TC_004",
+        "test_name": "地块日志查看测试",
+        "test_purpose": "验证用户能够查看地块的历史日志记录",
+        "test_method": "场景法",
+        "precondition": "用户已有账户且存在地块数据",
+        "test_steps": [
+            "用户访问网站",
+            "用户输入用户名密码并登录",
+            "系统跳转到首页",
+            "用户点击第一个地块卡片",
+            "系统跳转到地块详情页",
+            "系统显示地块日志列表",
+            "验证日志内容完整性"
+        ],
+        "expected_result": "成功查看地块日志记录，日志内容完整且格式正确",
+        "test_type": "端到端测试",
+        "priority": "中"
     }
 }
 
@@ -685,4 +809,22 @@ DEBUG_CONFIG = {
     "log_browser_console": True,
     "debug_screenshot_interval": 2,  # 每2秒截图一次（调试模式）
     "max_debug_logs": 50
+}
+
+# 日志验证配置
+LOG_VALIDATION = {
+    "required_fields": ["timestamp", "content"],
+    "optional_fields": ["type", "level", "category"],
+    "min_log_count": 0,  # 最少日志条数（0表示允许空日志）
+    "max_log_count": 100,  # 最多验证的日志条数
+    "timestamp_formats": [
+        "%Y-%m-%d %H:%M:%S",
+        "%Y/%m/%d %H:%M:%S",
+        "%m-%d %H:%M",
+        "%H:%M:%S"
+    ],
+    "content_keywords": [
+        "检测", "病害", "上传", "创建", "删除", "修改",
+        "detection", "disease", "upload", "create", "delete", "update"
+    ]
 }
