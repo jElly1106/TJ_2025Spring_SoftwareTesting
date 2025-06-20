@@ -30,11 +30,12 @@ async def analyze_plot_details(plot_details: List[PlotDetails]):
 
     for plot in plot_details:
         for log in plot.logs:
-            try:
                 # 跳过"健康"的检测记录
-                if log.diseaseName in ["健康"]:
-                    continue
-
+            if log.diseaseName in ["健康"]:
+                continue
+            if log.diseaseName is None:
+                raise HTTPException(status_code=400, detail="日志中缺少疾病名称")
+            try:
                 # 修改时间戳解析方式
                 log_date = datetime.datetime.strptime(log.timeStamp.split('.')[0], "%Y-%m-%d %H:%M:%S")
                 if log_date.year == year:
@@ -49,8 +50,7 @@ async def analyze_plot_details(plot_details: List[PlotDetails]):
                         disease_count[log.diseaseName] += 1
 
             except Exception as e:
-                print(f"日期解析错误: {log.timeStamp}, 错误: {str(e)}")
-                continue
+                raise HTTPException(status_code=400, detail=f"日期解析错误: {log.timeStamp}, 错误: {str(e)}")
 
     # 找出发生次数最多的病害
     most_common_disease = None
