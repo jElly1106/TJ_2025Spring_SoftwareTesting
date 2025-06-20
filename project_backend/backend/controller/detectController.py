@@ -14,7 +14,11 @@ async def validate_plot_access(plotId: str, user: User = Depends(get_current_use
         if plot.userId.userId != user.userId:
             raise HTTPException(status_code=403, detail=f"未授权的地块访问")
         return plot
+    except HTTPException:
+        # 让HTTPException直接传播，不要重新包装
+        raise
     except Exception as e:
+        # 只捕获非HTTP异常
         raise HTTPException(status_code=404, detail=f"地块验证失败: {str(e)}")
 
 
