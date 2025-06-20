@@ -644,7 +644,7 @@ TEST_CASES = {
                 "description": "判断覆盖",
                 "cases": [
                     {"input": [700, 6, 90], "expected": 100},
-                    {"input": [120, 6, 50], "expected": 0},
+                    {"input": [120, 6, 50], "expected": 20},
                     {"input": [100, 6, 90], "expected": 20},
                     {"input": [120, 6, 80], "expected": 20},
                 ]
@@ -654,7 +654,7 @@ TEST_CASES = {
                 "description": "条件覆盖",
                 "cases": [
                     {"input": [700, 6, 90], "expected": 100},
-                    {"input": [120, 6, 50], "expected": 0},
+                    {"input": [120, 6, 50], "expected": 20},
                     {"input": [100, 6, 90], "expected": 20},
                     {"input": [120, 6, 80], "expected": 20},
                     {"input": [120, 20, 50], "expected": 20},
@@ -692,7 +692,7 @@ TEST_CASES = {
 {"input": [250, 15, 90], "expected": 50},
 
 
-{"input": [300, 15, 70], "expected": 60}
+{"input": [300, 15, 70], "expected": 50}
                 ]
             }
 
