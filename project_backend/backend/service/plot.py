@@ -55,6 +55,8 @@ async def add_plot(
         user: User = Depends(get_current_user)
 ):
     try:
+        if plotName is None or plotName== "":
+            raise HTTPException(status_code=422, detail="地块名称不能为空")
         # 验证植物是否存在
         plant = await Plant.get(plantName=plantName)
 
