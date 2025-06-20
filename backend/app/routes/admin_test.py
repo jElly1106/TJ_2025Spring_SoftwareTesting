@@ -259,8 +259,7 @@ def get_city_predefined_cases():
         
         return jsonify({
             "success": True,
-            "predefined_cases": cases,
-            "total_count": len(cases)
+            "test_cases": cases
         })
         
     except Exception as e:
