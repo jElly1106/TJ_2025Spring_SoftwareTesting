@@ -1,5 +1,8 @@
 **/.DS_Store
 
+# 测试脚本
+project_backend/tests/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

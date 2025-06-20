@@ -103,32 +103,6 @@ class DetectTestService:
                 raise e
             raise HTTPException(status_code=404, detail=f"地块验证失败: {str(e)}")
     
-    def get_function_source_code(self) -> Dict[str, str]:
-        """
-        获取 validate_plot_access 函数的源代码
-        """
-        try:
-            # 获取函数源代码
-            source_code = inspect.getsource(self.validate_plot_access)
-            
-            # 获取函数签名
-            signature = str(inspect.signature(self.validate_plot_access))
-            
-            # 获取函数文档字符串
-            docstring = inspect.getdoc(self.validate_plot_access) or "无文档字符串"
-            
-            return {
-                "function_name": "validate_plot_access",
-                "signature": f"async def validate_plot_access{signature}",
-                "source_code": source_code,
-                "docstring": docstring,
-                "file_location": __file__,
-                "line_number": inspect.getsourcelines(self.validate_plot_access)[1]
-            }
-        except Exception as e:
-            return {
-                "error": f"获取源代码失败: {str(e)}"
-            }
     
     def get_validate_plot_access_predefined_cases(self) -> List[Dict[str, Any]]:
         """
@@ -282,95 +256,161 @@ class DetectTestService:
                 "description": "测试包含Unicode字符的plotId"
             }
         ]
-    
-    async def run_validate_plot_access_tests(self, test_cases: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    async def _execute_validate_plot_access_test(self, test_case: Dict[str, Any]) -> Dict[str, Any]:
         """
-        运行validate_plot_access测试用例（直接调用函数）
+        执行单个validate_plot_access测试用例
+        """
+        start_time = time.time()
+        
+        try:
+            # 模拟数据库错误
+            if test_case.get('simulate_db_error'):
+                raise Exception("Database connection failed")
+            
+            # 设置当前用户（重要修复）
+            user_id = test_case.get('userId')
+            if user_id:
+                self.set_current_user(user_id)
+            else:
+                # 明确设置为未认证状态
+                self.current_user = None
+            
+            # 调用被测试的方法
+            result = await self.validate_plot_access(
+                plotId=test_case.get('plotId'),
+                user=self.mock_users.get(user_id) if user_id else None
+            )
+            
+            execution_time = time.time() - start_time
+            duration_ms = round(execution_time * 1000, 2)
+            
+            # 处理成功情况
+            actual_status = 200
+            actual_message = "验证成功"
+            
+            # 期望结果
+            expected_status = test_case['expected_status']
+            expected_message = test_case['expected_message']
+            
+            # 判断测试是否通过
+            status_match = actual_status == expected_status
+            message_match = expected_message in actual_message
+            test_passed = status_match and message_match
+            
+            return {
+                "test_id": test_case['test_id'],
+                "test_purpose": test_case['test_purpose'],
+                "case_id": test_case['case_id'],
+                "test_type": test_case['test_type'],
+                "input_params": {
+                    "plotId": test_case.get('plotId'),
+                    "userId": test_case.get('userId')
+                },
+                "expected_status": expected_status,
+                "actual_status": actual_status,
+                "expected_message": expected_message,
+                "actual_message": actual_message,
+                "passed": test_passed,
+                "duration_ms": duration_ms,
+                "error": None
+            }
+            
+        except Exception as e:
+            execution_time = time.time() - start_time
+            duration_ms = round(execution_time * 1000, 2)
+            
+            # 根据异常类型确定状态码
+            if "未认证" in str(e):
+                actual_status = 401
+            elif "权限不足" in str(e) or "无权访问" in str(e) or "未授权" in str(e):
+                actual_status = 403
+            elif "不存在" in str(e):
+                actual_status = 404
+            else:
+                actual_status = 500
+            
+            # 期望结果
+            expected_status = test_case['expected_status']
+            expected_message = test_case['expected_message']
+            
+            # 判断测试是否通过
+            status_match = actual_status == expected_status
+            message_match = expected_message in str(e)
+            test_passed = status_match and message_match
+            
+            return {
+                "test_id": test_case['test_id'],
+                "test_purpose": test_case['test_purpose'],
+                "case_id": test_case['case_id'],
+                "test_type": test_case['test_type'],
+                "input_params": {
+                    "plotId": test_case.get('plotId'),
+                    "userId": test_case.get('userId')
+                },
+                "expected_status": expected_status,
+                "actual_status": actual_status,
+                "expected_message": expected_message,
+                "actual_message": str(e),
+                "passed": test_passed,
+                "duration_ms": duration_ms,
+                "error": str(e)
+            }
+            
+    async def run_validate_plot_access_tests(self, test_cases: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """
+        批量执行validate_plot_access测试用例
         """
         results = []
         for test_case in test_cases:
             result = await self._execute_validate_plot_access_test(test_case)
             results.append(result)
-            time.sleep(0.1)  # 短暂延迟
-        return results
-    
-    async def _execute_validate_plot_access_test(self, test_case: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        执行单个validate_plot_access测试用例（直接调用函数）
-        """
-        start_time = time.time()
         
-        try:
-            # 设置当前用户
-            if test_case.get('skip_auth', False):
-                self.set_current_user(None)
-            else:
-                user_id = test_case.get('userId')
-                if user_id:
-                    self.set_current_user(user_id)
-                else:
-                    self.set_current_user(None)
-            
-            # 调用被测试的函数
-            plot_id = test_case.get('plotId')
-            result = await self.validate_plot_access(plot_id)
-            
-            # 如果没有抛出异常，说明验证成功
-            actual_status = 200
-            actual_message = "验证成功"
-            
-        except HTTPException as e:
-            actual_status = e.status_code
-            actual_message = e.detail
-        except Exception as e:
-            actual_status = 500
-            actual_message = str(e)
+        # 生成统计信息
+        total_cases = len(results)
+        passed_cases = len([r for r in results if r['passed']])
+        failed_cases = total_cases - passed_cases
+        pass_rate = f"{(passed_cases/total_cases*100):.1f}%" if total_cases > 0 else "0.0%"
+        avg_duration = sum(r['duration_ms'] for r in results) / total_cases if total_cases > 0 else 0.0
         
-        end_time = time.time()
-        execution_time = end_time - start_time
-        
-        # 分析结果
-        expected_status = test_case['expected_status']
-        status_match = actual_status == expected_status
-        message_match = test_case['expected_message'].lower() in actual_message.lower()
-        test_passed = status_match and message_match
+        # 按测试类型统计
+        type_statistics = {}
+        for result in results:
+            test_type = result['test_type']
+            if test_type not in type_statistics:
+                type_statistics[test_type] = {"total": 0, "passed": 0}
+            type_statistics[test_type]["total"] += 1
+            if result['passed']:
+                type_statistics[test_type]["passed"] += 1
         
         return {
-            "test_id": test_case['test_id'],
-            "test_purpose": test_case['test_purpose'],
-            "case_id": test_case['case_id'],
-            "test_type": test_case['test_type'],
-            "description": test_case.get('description', ''),
-            "input_data": {
-                "plotId": test_case.get('plotId'),
-                "userId": test_case.get('userId'),
-                "skip_auth": test_case.get('skip_auth', False)
+            "success": True,
+            "summary": {
+                "total_cases": total_cases,
+                "passed_cases": passed_cases,
+                "failed_cases": failed_cases,
+                "pass_rate": pass_rate,
+                "avg_duration_ms": round(avg_duration, 2),
+                "type_statistics": type_statistics
             },
-            "expected": {
-                "status": expected_status,
-                "message": test_case['expected_message']
-            },
-            "actual": {
-                "status": actual_status,
-                "message": actual_message,
-                "execution_time": f"{execution_time:.4f}s"
-            },
-            "result": "PASS" if test_passed else "FAIL",
-            "details": {
-                "status_match": status_match,
-                "message_match": message_match,
-                "function_called": "validate_plot_access",
-                "execution_method": "direct_function_call"
-            }
+            "test_results": results
         }
-    
-    async def run_validate_plot_access_tests_batch(self) -> List[Dict[str, Any]]:
+    async def run_validate_plot_access_tests_batch(self) -> Dict[str, Any]:
         """
         批量运行所有预定义的validate_plot_access测试用例
         """
-        test_cases = self.get_validate_plot_access_predefined_cases()
-        return await self.run_validate_plot_access_tests(test_cases)
-    
+        try:
+            # 获取预定义测试用例
+            test_cases = self.get_validate_plot_access_predefined_cases()
+            
+            # 执行批量测试
+            return await self.run_validate_plot_access_tests(test_cases)
+            
+        except Exception as e:
+            return {
+                "success": False,
+                "error": f"批量测试执行失败: {str(e)}",
+                "test_results": []
+            }
     def generate_test_report(self, results: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
         生成测试报告

@@ -29,56 +29,47 @@ def get_function_source():
 @detect_test_bp.route('/detect/test/validate_plot_access', methods=['POST'])
 def test_validate_plot_access():
     """
-    测试validate_plot_access函数（直接调用）
-    
-    请求体格式：
-    {
-        "test_cases": [
-            {
-                "test_id": "IT_TC_007_001",
-                "test_purpose": "有效地块ID，授权用户访问",
-                "case_id": "001",
-                "plotId": "valid_plot_id_123",
-                "userId": "user_123",
-                "expected_status": 200,
-                "expected_message": "验证成功",
-                "test_type": "有效等价类"
-            }
-        ]
-    }
+    执行单个validate_plot_access测试用例
     """
     try:
         data = request.get_json()
-        if not data or 'test_cases' not in data:
+        test_case = data.get('test_case')
+        
+        if not test_case:
             return jsonify({
                 "success": False,
-                "message": "缺少test_cases参数"
+                "error": "Missing test_case in request"
             }), 400
         
-        test_service = DetectTestService()
+        # 创建服务实例
+        service = DetectTestService()
         
-        # 使用 asyncio 运行异步测试
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        try:
-            results = loop.run_until_complete(
-                test_service.run_validate_plot_access_tests(data['test_cases'])
-            )
-            report = test_service.generate_test_report(results)
-        finally:
-            loop.close()
+        # 执行单个测试
+        result = asyncio.run(service._execute_validate_plot_access_test(test_case))
         
+        # 返回统一格式
         return jsonify({
             "success": True,
-            "message": "测试执行完成",
-            "report": report,
-            "results": results
+            "summary": {
+                "total_cases": 1,
+                "passed_cases": 1 if result['passed'] else 0,
+                "failed_cases": 0 if result['passed'] else 1,
+                "pass_rate": "100.0%" if result['passed'] else "0.0%",
+                "avg_duration_ms": result['duration_ms'],
+                "type_statistics": {
+                    result['test_type']: {
+                        "total": 1,
+                        "passed": 1 if result['passed'] else 0
+                    }
+                }
+            },
+            "test_results": [result]
         })
         
     except Exception as e:
         return jsonify({
             "success": False,
-            "message": f"测试执行失败: {str(e)}"
+            "error": str(e)
         }), 500
 
 @detect_test_bp.route('/detect/test/validate_plot_access_predefined_cases', methods=['GET'])
@@ -106,35 +97,18 @@ def get_validate_plot_access_predefined_cases():
 @detect_test_bp.route('/detect/test/run_validate_plot_access_all_tests', methods=['POST'])
 def run_validate_plot_access_all_tests():
     """
-    运行所有预定义的validate_plot_access测试用例
+    运行所有validate_plot_access测试用例
     """
     try:
-        test_service = DetectTestService()
-        
-        # 使用 asyncio 运行异步测试
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        try:
-            results = loop.run_until_complete(
-                test_service.run_validate_plot_access_tests_batch()
-            )
-            report = test_service.generate_test_report(results)
-        finally:
-            loop.close()
-        
-        return jsonify({
-            "success": True,
-            "message": "批量测试执行完成",
-            "report": report,
-            "results": results
-        })
-        
+        service = DetectTestService()
+        result = asyncio.run(service.run_validate_plot_access_tests_batch())
+        return jsonify(result)
     except Exception as e:
         return jsonify({
             "success": False,
-            "message": f"批量测试执行失败: {str(e)}"
+            "error": str(e)
         }), 500
-
+        
 @detect_test_bp.route('/detect/test/validate_plot_access_report', methods=['POST'])
 def get_validate_plot_access_report():
     """
