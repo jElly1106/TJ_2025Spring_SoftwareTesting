@@ -79,6 +79,33 @@ class DetectTestService:
         else:
             raise Exception(f"地块 {plotId} 不存在")
     
+    def get_function_source_code(self) -> Dict[str, str]:
+        """
+        获取 validate_plot_access 函数的源代码
+        """
+        try:
+            # 获取函数源代码
+            source_code = inspect.getsource(self.validate_plot_access)
+            
+            # 获取函数签名
+            signature = str(inspect.signature(self.validate_plot_access))
+            
+            # 获取函数文档字符串
+            docstring = inspect.getdoc(self.validate_plot_access) or "验证用户对地块的访问权限"
+            
+            return {
+                "function_name": "validate_plot_access",
+                "signature": f"def validate_plot_access{signature}",
+                "source_code": source_code,
+                "docstring": docstring,
+                "file_location": __file__,
+                "line_number": inspect.getsourcelines(self.validate_plot_access)[1]
+            }
+        except Exception as e:
+            return {
+                "error": f"获取源代码失败: {str(e)}"
+            }
+            
     async def validate_plot_access(self, plotId: str, user: Optional[User] = None) -> Plot:
         """
         验证地块访问权限的核心函数
@@ -355,7 +382,7 @@ class DetectTestService:
                 "duration_ms": duration_ms,
                 "error": str(e)
             }
-            
+
     async def run_validate_plot_access_tests(self, test_cases: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
         批量执行validate_plot_access测试用例

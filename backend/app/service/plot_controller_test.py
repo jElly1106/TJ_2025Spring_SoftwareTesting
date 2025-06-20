@@ -1077,23 +1077,37 @@ class PlotControllerTestService:
                 "test_results": []
             }
 
-    def get_get_plot_by_id_function_source_code(self) -> str:
+    def get_get_plot_by_id_function_source_code(self) -> Dict[str, str]:
         """
         获取get_plot_by_id函数的源代码
         """
-        return '''
-        async def get_plot_by_id(plotId: str):
-            try:
-                # 同时预加载 userId 和 plantId 的关联数据
-                plot = await Plot.get(plotId=plotId).select_related("userId", "plantId")
+        try:
+            source_code = '''
+            async def get_plot_by_id(plotId: str):
+                try:
+                    # 同时预加载 userId 和 plantId 的关联数据
+                    plot = await Plot.get(plotId=plotId).select_related("userId", "plantId")
 
-                if plot:
-                    return plot
+                    if plot:
+                        return plot
 
-            except Exception as e:
-                raise HTTPException(status_code=404, detail=str(e))
-        '''
-    
+                except Exception as e:
+                    raise HTTPException(status_code=404, detail=str(e))
+            '''
+            
+            return {
+                "function_name": "get_plot_by_id",
+                "signature": "async def get_plot_by_id(plotId: str)",
+                "source_code": source_code,
+                "docstring": "根据plotId获取地块信息",
+                "file_location": "backend/app/routes/plot_controller.py",
+                "line_number": 1
+            }
+        except Exception as e:
+            return {
+                "error": f"获取源代码失败: {str(e)}"
+            }
+            
     def generate_get_plot_by_id_test_report(self, test_results: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
         生成get_plot_by_id测试报告

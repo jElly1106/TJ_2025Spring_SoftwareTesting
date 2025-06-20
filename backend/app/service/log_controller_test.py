@@ -598,27 +598,42 @@ class LogControllerTestService:
         test_cases = self.get_set_log_predefined_cases()
         return await self.run_set_log_tests(test_cases)
     
-    def get_set_log_function_source_code(self) -> str:
+    def get_set_log_function_source_code(self) -> Dict[str, str]:
         """
-        返回 set_log 函数的源代码
+        获取 set_log 函数的源代码
         """
-        return '''
-async def set_log(plotId: str, diseaseName: str, advice: str, imageURL: str):
-    try:
-        plot = await Plot.get(plotId=plotId)
-        content = f"检测到{diseaseName}，建议：{advice}"
+        try:
+            # 获取函数源代码
+            source_code = '''
+    async def set_log(plotId: str, diseaseName: str, advice: str, imageURL: str):
+        try:
+            plot = await Plot.get(plotId=plotId)
+            content = f"检测到{diseaseName}，建议：{advice}"
 
-        await Log.create(
-            plotId=plot,
-            diseaseName=diseaseName,
-            content=content,
-            imagesURL=imageURL
-        )
+            await Log.create(
+                plotId=plot,
+                diseaseName=diseaseName,
+                content=content,
+                imagesURL=imageURL
+            )
 
-        return "创建日志成功"
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"创建日志失败: {str(e)}")
-        '''
+            return "创建日志成功"
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"创建日志失败: {str(e)}")
+            '''
+            
+            return {
+                "function_name": "set_log",
+                "signature": "async def set_log(plotId: str, diseaseName: str, advice: str, imageURL: str)",
+                "source_code": source_code,
+                "docstring": "创建日志记录",
+                "file_location": "backend/app/routes/log_controller.py",
+                "line_number": 1
+            }
+        except Exception as e:
+            return {
+                "error": f"获取源代码失败: {str(e)}"
+            }
     
     def generate_test_report(self, test_results: List[Dict[str, Any]]) -> Dict[str, Any]:
         """

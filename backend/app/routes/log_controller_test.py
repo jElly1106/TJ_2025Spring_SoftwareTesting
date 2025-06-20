@@ -129,25 +129,25 @@ def run_set_log_all_tests():
             "success": False,
             "error": str(e)
         }), 500
-        
+
 @log_test_bp.route('/set_log_function_source', methods=['GET'])
 def get_set_log_function_source():
     """
     获取 set_log 函数的源代码
     """
     try:
-        source_code = log_test_service.get_set_log_function_source_code()
+        source_info = log_test_service.get_set_log_function_source_code()
         return jsonify({
             "status": "success",
-            "source_code": source_code,
-            "function_name": "set_log"
+            "message": "获取函数源代码成功",
+            "source_info": source_info
         })
     except Exception as e:
         return jsonify({
-            "error": "Failed to get function source",
-            "message": str(e)
+            "status": "error",
+            "message": f"获取源代码失败: {str(e)}"
         }), 500
-
+        
 @log_test_bp.route('/set_log_report', methods=['POST'])
 def generate_set_log_report():
     """

@@ -210,7 +210,7 @@ def run_get_plot_by_id_all_tests():
         
     except Exception as e:
         return jsonify({"error": f"批量测试执行失败: {str(e)}"}), 500
-        
+
 @plot_controller_test_bp.route('/plot/test/get_plot_by_id_function_source', methods=['GET'])
 def get_get_plot_by_id_function_source():
     """
@@ -218,16 +218,19 @@ def get_get_plot_by_id_function_source():
     """
     try:
         service = PlotControllerTestService()
-        source_code = service.get_get_plot_by_id_function_source_code()
+        source_info = service.get_get_plot_by_id_function_source_code()
         
         return jsonify({
+            "status": "success",
             "message": "获取函数源代码成功",
-            "function_name": "get_plot_by_id",
-            "source_code": source_code
+            "source_info": source_info
         })
         
     except Exception as e:
-        return jsonify({"error": f"获取源代码失败: {str(e)}"}), 500
+        return jsonify({
+            "status": "error",
+            "message": f"获取源代码失败: {str(e)}"
+        }), 500
 
 @plot_controller_test_bp.route('/plot/test/get_plot_by_id_report', methods=['POST'])
 def generate_get_plot_by_id_report():

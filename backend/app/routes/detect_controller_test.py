@@ -15,17 +15,17 @@ def get_function_source():
         source_info = test_service.get_function_source_code()
         
         return jsonify({
-            "success": True,
+            "status": "success",
             "message": "获取函数源代码成功",
             "source_info": source_info
         })
         
     except Exception as e:
         return jsonify({
-            "success": False,
-            "message": f"获取函数源代码失败: {str(e)}"
+            "status": "error",
+            "message": f"获取源代码失败: {str(e)}"
         }), 500
-
+        
 @detect_test_bp.route('/detect/test/validate_plot_access', methods=['POST'])
 def test_validate_plot_access():
     """
@@ -108,7 +108,7 @@ def run_validate_plot_access_all_tests():
             "success": False,
             "error": str(e)
         }), 500
-        
+
 @detect_test_bp.route('/detect/test/validate_plot_access_report', methods=['POST'])
 def get_validate_plot_access_report():
     """
