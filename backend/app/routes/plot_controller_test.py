@@ -1,6 +1,8 @@
 from flask import Blueprint, request, jsonify
 import asyncio
+import time
 from app.service.plot_controller_test import PlotControllerTestService
+
 
 # 创建蓝图
 plot_controller_test_bp = Blueprint('plot_controller_test', __name__)
@@ -8,26 +10,47 @@ plot_controller_test_bp = Blueprint('plot_controller_test', __name__)
 @plot_controller_test_bp.route('/plot/test/call_get_logs', methods=['POST'])
 def test_call_get_logs():
     """
-    测试call_get_logs函数
+    执行单个call_get_logs测试用例
     """
     try:
         data = request.get_json()
-        test_cases = data.get('test_cases', [])
+        test_case = data.get('test_case')
         
+        if not test_case:
+            return jsonify({
+                "success": False,
+                "error": "Missing test_case in request"
+            }), 400
+        
+        # 创建服务实例
         service = PlotControllerTestService()
         
-        # 运行测试
-        results = asyncio.run(service.run_call_get_logs_tests(test_cases))
+        # 执行单个测试
+        result = asyncio.run(service._execute_call_get_logs_test(test_case))
         
+        # 返回统一格式
         return jsonify({
-            "status": "success",
-            "message": "call_get_logs测试执行完成",
-            "results": results
+            "success": True,
+            "summary": {
+                "total_cases": 1,
+                "passed_cases": 1 if result['passed'] else 0,
+                "failed_cases": 0 if result['passed'] else 1,
+                "pass_rate": "100.0%" if result['passed'] else "0.0%",
+                "avg_duration_ms": result['duration_ms'],
+                "type_statistics": {
+                    result['test_type']: {
+                        "total": 1,
+                        "passed": 1 if result['passed'] else 0
+                    }
+                }
+            },
+            "test_results": [result]
         })
+        
     except Exception as e:
         return jsonify({
-            "status": "error",
-            "message": f"测试执行失败: {str(e)}"
+            "success": False,
+            "error": str(e)
         }), 500
 
 @plot_controller_test_bp.route('/plot/test/call_get_logs_predefined_cases', methods=['GET'])
@@ -54,28 +77,18 @@ def get_call_get_logs_predefined_cases():
 @plot_controller_test_bp.route('/plot/test/run_call_get_logs_all_tests', methods=['POST'])
 def run_call_get_logs_all_tests():
     """
-    运行所有call_get_logs预定义测试用例
+    运行所有call_get_logs测试用例
     """
     try:
         service = PlotControllerTestService()
-        
-        # 运行所有测试
-        results = asyncio.run(service.run_call_get_logs_tests_batch())
-        
-        # 生成测试报告
-        report = service.generate_test_report(results)
-        
-        return jsonify({
-            "status": "success",
-            "message": "所有call_get_logs测试执行完成",
-            "results": results,
-            "report": report
-        })
+        result = asyncio.run(service.run_call_get_logs_tests_batch())
+        return jsonify(result)
     except Exception as e:
         return jsonify({
-            "status": "error",
-            "message": f"测试执行失败: {str(e)}"
+            "success": False,
+            "error": str(e)
         }), 500
+
 
 @plot_controller_test_bp.route('/plot/test/call_get_logs_function_source', methods=['GET'])
 def get_call_get_logs_function_source():
@@ -128,31 +141,39 @@ def test_get_plot_by_id():
     """
     try:
         data = request.get_json()
-        test_cases = data.get('test_cases', [])
-        
-        if not test_cases:
-            return jsonify({
-                "error": "请提供测试用例",
-                "example": {
-                    "test_cases": [
-                        {
-                            "case_id": "TC00901",
-                            "description": "正常获取地块信息",
-                            "test_type": "有效等价类",
-                            "plotId": "plot123",
-                            "expected_status": "success",
-                            "expected_message": "返回完整Plot对象"
-                        }
-                    ]
-                }
-            }), 400
+        test_case = data
         
         service = PlotControllerTestService()
-        results = asyncio.run(service.run_get_plot_by_id_tests(test_cases))
+        result = asyncio.run(service._execute_get_plot_by_id_test(test_case))
+        
+        # 计算统计信息
+        total_cases = 1
+        passed_cases = 1 if result['passed'] else 0
+        failed_cases = total_cases - passed_cases
+        pass_rate = f"{(passed_cases/total_cases*100):.1f}%"
+        avg_duration_ms = result.get('duration_ms', 0)
+        
+        # 按测试类型统计
+        test_type = result['test_type']
+        type_statistics = {
+            test_type: {
+                "total": 1,
+                "passed": passed_cases,
+                "pass_rate": pass_rate
+            }
+        }
         
         return jsonify({
-            "message": "get_plot_by_id测试完成",
-            "results": results
+            "success": True,
+            "summary": {
+                "total_cases": total_cases,
+                "passed_cases": passed_cases,
+                "failed_cases": failed_cases,
+                "pass_rate": pass_rate,
+                "avg_duration_ms": avg_duration_ms,
+                "type_statistics": type_statistics
+            },
+            "test_result": result
         })
         
     except Exception as e:
@@ -183,16 +204,13 @@ def run_get_plot_by_id_all_tests():
     """
     try:
         service = PlotControllerTestService()
-        report = asyncio.run(service.run_get_plot_by_id_tests_batch())
+        result = asyncio.run(service.run_get_plot_by_id_tests_batch())
         
-        return jsonify({
-            "message": "get_plot_by_id所有测试完成",
-            "report": report
-        })
+        return jsonify(result)
         
     except Exception as e:
         return jsonify({"error": f"批量测试执行失败: {str(e)}"}), 500
-
+        
 @plot_controller_test_bp.route('/plot/test/get_plot_by_id_function_source', methods=['GET'])
 def get_get_plot_by_id_function_source():
     """

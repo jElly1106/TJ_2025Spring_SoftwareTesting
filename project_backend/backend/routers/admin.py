@@ -37,35 +37,49 @@ def validate_city_file(url: str):
         raise HTTPException(status_code=500, detail=f"读取CSV文件失败: {str(e)}")
 
 
-@admin.post('/package/add')
-async def add_package(
-        packageName: str = Query(...),
-        price: float = Query(...),
-        sumNum: int = Query(...)
+@admin.post('/plant/add')
+async def add_plant(
+        plantName: str = Query(None),  # 改为可选参数
+        plantFeature: str = Query(None),
+        plantIconURL: str = Query(None)
 ):
     try:
-        # 验证输入
-        if price <= 0:
-            raise ValueError("价格必须大于0")
-        if sumNum <= 0:
-            raise ValueError("次数必须大于0")
+        # 手动参数校验 - 检查必要参数是否为空
+        if plantName is None:
+            raise HTTPException(status_code=422, detail={"message": "参数校验失败"})
+        if plantFeature is None:
+            raise HTTPException(status_code=422, detail={"message": "参数校验失败"})
+        if plantIconURL is None:
+            raise HTTPException(status_code=422, detail={"message": "参数校验失败"})
+        
+        # 参数长度校验
+        if len(plantName) > 40:
+            raise HTTPException(status_code=422, detail={"message": "参数校验失败"})
+        if len(plantIconURL) > 100:
+            raise HTTPException(status_code=422, detail={"message": "参数校验失败"})
+        
+        # 检查植物名是否已存在
+        existing_plant = await Plant.filter(plantName=plantName).first()
+        if existing_plant:
+            raise HTTPException(status_code=400, detail={"message": "植物名称已存在"})
 
-        package = await Package.create(
-            packageName=packageName,
-            price=price,
-            sumNum=sumNum,
+        plant = await Plant.create(
+            plantName=plantName,
+            plantFeature=plantFeature,
+            plantIconURL=plantIconURL
         )
+
         return {
-            "packageId": str(package.packageId),
-            "packageName": package.packageName,
-            "price": package.price,
-            "sumNum": package.sumNum,
-            "message": "套餐创建成功"
+            "plantId": str(plant.plantId),
+            "plantName": plant.plantName,
+            "plantFeature": plant.plantFeature,
+            "plantIconURL": plant.plantIconURL,
+            "message": "植物添加成功"
         }
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"创建套餐失败: {str(e)}")
+        raise HTTPException(status_code=500, detail={"message": f"添加植物失败: {str(e)}"})
 
 
 @admin.delete('/package/{packageId}')
@@ -90,10 +104,16 @@ async def add_plant(
         plantIconURL: str = Query(...)
 ):
     try:
+        # 参数校验 - 检查参数长度
+        if len(plantName) > 40:
+            raise HTTPException(status_code=422, detail={"message": "参数校验失败"})
+        if len(plantIconURL) > 100:
+            raise HTTPException(status_code=422, detail={"message": "参数校验失败"})
+        
         # 检查植物名是否已存在
         existing_plant = await Plant.filter(plantName=plantName).first()
         if existing_plant:
-            raise HTTPException(status_code=400, detail="植物名称已存在")
+            raise HTTPException(status_code=400, detail={"message": "植物名称已存在"})
 
         plant = await Plant.create(
             plantName=plantName,
@@ -105,13 +125,13 @@ async def add_plant(
             "plantId": str(plant.plantId),
             "plantName": plant.plantName,
             "plantFeature": plant.plantFeature,
-            "plantIconURL": plant.plantIconURL,  # eg: XXX.jpg
+            "plantIconURL": plant.plantIconURL,
             "message": "植物添加成功"
         }
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"添加植物失败: {str(e)}")
+        raise HTTPException(status_code=500, detail={"message": f"添加植物失败: {str(e)}"})
 
 
 @admin.delete('/plant/{plantId}')
@@ -201,19 +221,31 @@ async def city_input(csvURL: str = Query(...)):
 
 @admin.post('/disease/add')
 async def add_disease(
-        diseaseName: str = Query(...),
-        plantName: str = Query(...),
-        advice: str = Query(...)
+        diseaseName: str = Query(None),
+        plantName: str = Query(None),
+        advice: str = Query(None)
 ):
-    plant = await Plant.get(plantName=plantName)
+    # 参数校验
+    if diseaseName is None or plantName is None or advice is None:
+        raise HTTPException(status_code=422, detail={"message": "参数校验失败"})
+    
+    # 长度校验
+    if len(advice) > 256:
+        raise HTTPException(status_code=422, detail={"message": "参数校验失败"})
+    
+    try:
+        plant = await Plant.get(plantName=plantName)
+    except:
+        raise HTTPException(status_code=404, detail={"message": "未收录的植物"})
+    
     plant_name = PLANT_NAME_MAP.get(plant.plantName)
     if not plant_name:
-        raise HTTPException(status_code=404, detail="未收录的植物")
+        raise HTTPException(status_code=404, detail={"message": "未收录的植物"})
 
     try:
         existing_disease = await Disease.filter(diseaseName=diseaseName).first()
         if existing_disease:
-            raise HTTPException(status_code=400, detail="病名已存在")
+            raise HTTPException(status_code=400, detail={"message": "病名已存在"})
 
         disease = await Disease.create(
             diseaseName=diseaseName,
@@ -229,4 +261,4 @@ async def add_disease(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"添加病害失败: {str(e)}")
+        raise HTTPException(status_code=500, detail={"message": f"添加病害失败: {str(e)}"})

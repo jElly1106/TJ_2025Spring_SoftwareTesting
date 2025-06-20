@@ -1,3 +1,4 @@
 /backend/temp
 /backend/.idea
 **/*.pyc
+.env
