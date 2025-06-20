@@ -1,7 +1,7 @@
 ## `GET /homework/code`
 获取题目的初始代码
 查询参数：
-- problem: 题目名称 (triangle_judge, computer_selling, telecom_system, calendar_problem)
+- problem: 题目名称 (triangle_judge, computer_selling, telecom_system, calendar_problem, seller_bonus)
 
 返回格式：
 ```json
@@ -80,6 +80,18 @@ calendar_problem:
     5. equivalent_weak_robust - 弱健壮等价类测试
     6. equivalent_strong_robust - 强健壮等价类测试
     7. decision_table - 决策表测试
+
+seller_bonus:
+
+1.statement_coverage: 语句覆盖
+
+2.judgement_coverage: 判断覆盖
+
+3.condition_coverage: 条件覆盖
+
+4.judgement_condition_coverage: 判断—条件覆盖
+
+5.condition_combination_coverage: 条件组合覆盖
 
 
 

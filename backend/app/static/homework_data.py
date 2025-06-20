@@ -102,6 +102,27 @@ HOMEWORK_CODES = {
 
     return f"{result[0]}/{result[1]}/{result[2]}"''',
 
+    "seller_bonus":'''def seller_bonus(sales_amount, leave_days, cash_arrival_percent):
+    if not isinstance(sales_amount, (int, float)) or sales_amount < 0:
+        raise ValueError("销售额必须为非负数")
+    if not isinstance(leave_days, int) or not (0 <= leave_days <= 366):
+        raise ValueError("请假天数必须为整数，且在 0 到 366 之间")
+    if not isinstance(cash_arrival_percent, (int, float)) or not (0 <= cash_arrival_percent <= 100):
+        raise ValueError("现金到账比例必须为 0 到 100 之间的数")
+
+    if sales_amount > 200 and leave_days <= 10:
+        if cash_arrival_percent >= 60:
+            commission_factor = 7
+        else:
+            return 0.0
+    else:
+        if cash_arrival_percent <= 85:
+            commission_factor = 6
+        else:
+            commission_factor = 5
+    commission = sales_amount / commission_factor
+    return round(commission, 2)'''
+
 }
 
 # 测试用例数据结构 - 按函数名分组（重新计算后）
@@ -605,6 +626,78 @@ TEST_CASES = {
 
         }
     },
+    "seller_bonus": {
+    "function_name": "seller_bonus",
+        "description": "销售员佣金问题函数测试用例",
+        "test_methods": {
+            "statement_coverage": {
+                "name": "语句覆盖",
+                "description": "语句覆盖",
+                "cases": [
+                    {"input": [700, 6, 90], "expected": 100},
+                    {"input": [120, 6, 80], "expected": 20},
+
+                ]
+            },
+        "judgement_coverage": {
+                "name": "判断覆盖",
+                "description": "判断覆盖",
+                "cases": [
+                    {"input": [700, 6, 90], "expected": 100},
+                    {"input": [120, 6, 50], "expected": 0},
+                    {"input": [100, 6, 90], "expected": 20},
+                    {"input": [120, 6, 80], "expected": 20},
+                ]
+            },
+        "condition_coverage": {
+                "name": "条件覆盖",
+                "description": "条件覆盖",
+                "cases": [
+                    {"input": [700, 6, 90], "expected": 100},
+                    {"input": [120, 6, 50], "expected": 0},
+                    {"input": [100, 6, 90], "expected": 20},
+                    {"input": [120, 6, 80], "expected": 20},
+                    {"input": [120, 20, 50], "expected": 20},
+                ]
+            },
+        "judgement_condition_coverage": {
+                "name": "判断—条件覆盖",
+                "description": "判断—条件覆盖",
+                "cases": [
+{"input": [120, 10, 50], "expected": 20},
+                ]
+            },
+        "condition_combination_coverage": {
+                "name": "条件组合覆盖",
+                "description": "条件组合覆盖",
+                "cases": [
+{"input": [700, 5, 90], "expected": 100},
+
+
+{"input": [210, 5, 50], "expected": 0},
+
+
+{"input": [100, 5, 90], "expected": 20},
+
+
+{"input": [120, 15, 70], "expected": 20},
+
+
+{"input": [300, 15, 50], "expected": 50},
+
+
+{"input": [180, 5, 70], "expected": 30},
+
+
+{"input": [250, 15, 90], "expected": 50},
+
+
+{"input": [300, 15, 70], "expected": 60}
+                ]
+            }
+
+        },
+    },
 }
 
 # 支持的测试方法列表
@@ -615,7 +708,14 @@ SUPPORTED_TEST_METHODS = [
     "equivalent_strong",
     "equivalent_weak_robust",
     "equivalent_strong_robust",
-    "decision_table"
+    "decision_table",
+    "statement_coverage",
+    "judgement_coverage",
+    "condition_coverage",
+    "judgement_condition_coverage",
+    "condition_combination_coverage"
+
+
 ]
 
 # 支持的函数列表
