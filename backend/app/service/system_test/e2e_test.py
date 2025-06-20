@@ -1303,7 +1303,7 @@ class E2ETestService:
     def _check_for_error_message(self) -> str:
         """检查是否有错误信息"""
         try:
-            # 检查各种可能的错误提示
+            # JavaScript 检查（主要方式）
             error_msg = self.driver.execute_script("""
                 // 检查 ion-alert 中的错误信息
                 var alerts = document.querySelectorAll('ion-alert');
@@ -1329,20 +1329,15 @@ class E2ETestService:
                     }
                 }
                 
-                // 检查模态框中的错误信息
-                var modals = document.querySelectorAll('ion-modal[is-open="true"]');
-                for (var i = 0; i < modals.length; i++) {
-                    var modal = modals[i];
-                    var text = modal.textContent.toLowerCase();
-                    if (text.includes('错误') || text.includes('失败') || text.includes('error') || text.includes('failed')) {
-                        // 获取具体的错误信息
-                        var errorElements = modal.querySelectorAll('p, span, div');
-                        for (var j = 0; j < errorElements.length; j++) {
-                            var elem = errorElements[j];
-                            var elemText = elem.textContent.toLowerCase();
-                            if (elemText.includes('错误') || elemText.includes('失败')) {
-                                return elem.textContent.trim();
-                            }
+                // 检查页面中所有包含错误关键词的元素
+                var allElements = document.querySelectorAll('p, div, span');
+                for (var i = 0; i < allElements.length; i++) {
+                    var elem = allElements[i];
+                    if (elem.offsetParent !== null && elem.children.length === 0) {  // 可见的叶子节点
+                        var text = elem.textContent.toLowerCase().trim();
+                        if (text.length > 2 && text.length < 200 && 
+                            (text.includes('错误') || text.includes('失败') || text.includes('error') || text.includes('failed'))) {
+                            return elem.textContent.trim();
                         }
                     }
                 }
@@ -1351,26 +1346,34 @@ class E2ETestService:
             """)
             
             if error_msg:
-                print(f"[调试] 检测到错误信息: {error_msg}")
+                print(f"[调试] JavaScript检测到错误信息: {error_msg}")
                 return error_msg
             
-            # 备用方案：使用Selenium查找错误信息
+            # 备用方案：使用安全的Selenium选择器
             try:
-                for selector in SELECTORS["error_messages"]:
+                safe_selectors = [
+                    "ion-alert",
+                    "ion-toast", 
+                    ".error-message",
+                    ".alert-danger",
+                    "[role='alert']"
+                ]
+                
+                for selector in safe_selectors:
                     try:
-                        element = self.driver.find_element(By.CSS_SELECTOR, selector)
-                        if element.is_displayed():
-                            error_text = element.text.strip()
-                            if error_text and any(keyword in error_text.lower() for keyword in ["错误", "失败", "error", "failed"]):
-                                print(f"[调试] Selenium检测到错误信息: {error_text}")
-                                return error_text
-                    except NoSuchElementException:
+                        elements = self.driver.find_elements(By.CSS_SELECTOR, selector)
+                        for element in elements:
+                            if element.is_displayed():
+                                error_text = element.text.strip()
+                                if error_text and any(keyword in error_text.lower() for keyword in ["错误", "失败", "error", "failed"]):
+                                    print(f"[调试] Selenium检测到错误信息: {error_text}")
+                                    return error_text
+                    except Exception as e:
+                        print(f"[调试] 选择器 '{selector}' 检查失败: {str(e)}")
                         continue
             except Exception as e:
-                print(f"[调试] Selenium检查错误信息失败: {str(e)}")
-            
-            return ""
-            
+                print(f"[调试] Selenium备用检查失败: {str(e)}")
+        
         except Exception as e:
             print(f"[调试] 检查错误信息失败: {str(e)}")
             return ""

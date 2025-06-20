@@ -79,8 +79,8 @@ WAIT_CONFIG = {
 
 # 检测结果等待配置
 DETECTION_WAIT_CONFIG = {
-    "max_wait_time": 20,  # 增加到2分钟
-    "check_interval": 5,   # 每5秒检查一次
+    "max_wait_time": 5,  # 增加到2分钟
+    "check_interval": 1,   # 每5秒检查一次
     "result_keywords_threshold": 2,
     "final_check_keywords": [
         "检测结果", "病害名称", "置信度", "建议", "检测完成",
@@ -125,10 +125,10 @@ SELECTORS = {
             "[name='password']"
         ],
         "login_button": [
-            "ion-button:contains('登录')",
-            "ion-button[expand='block']:not([fill='outline'])",
-            "button:contains('登录')",
+            "ion-button[expand='block']:not([fill='outline'])",  # 移除 :contains()
+            "ion-button[type='submit']",
             "ion-button",
+            "button[type='submit']",
             "[onclick*='login']"
         ],
         "signup_link": [
@@ -148,42 +148,43 @@ SELECTORS = {
     
     "plot_detail": {
         "more_options_button": [
-            "#more-options-button",              # 更多选项按钮的ID
+            "#more-options-button",
             "ion-button[id='more-options-button']",
-            "ion-buttons ion-button",            # 工具栏中的按钮
-            "ion-header ion-buttons ion-button"  # 头部按钮
+            "ion-buttons ion-button",
+            "ion-header ion-buttons ion-button"
         ],
         "popover_menu": [
-            "ion-popover ion-content",           # 弹出菜单内容
-            "ion-popover ion-list",              # 弹出菜单列表
-            "ion-list[role='menu']"              # 菜单角色的列表
+            "ion-popover ion-content",
+            "ion-popover ion-list",
+            "ion-list[role='menu']"
         ],
         "disease_detection_option": [
-            "ion-item:contains('疾病检测')",      # 包含"疾病检测"文本的项目
-            "ion-item[button]:has-text('疾病检测')", # 备用选择器
-            "[data-testid='disease-detection']"   # 测试ID选择器
+            "ion-item[button]",                      # 移除 :contains() 和 :has-text()
+            "[data-testid='disease-detection']",
+            "ion-item"                               # 通用选择器，通过JavaScript过滤文本
         ]
     },
     
     "disease_detection": {
         "modal": [
-            "ion-modal[is-open='true']",         # 打开的模态框
-            "ion-modal .modal-wrapper",         # 模态框包装器
-            "ion-modal ion-content"              # 模态框内容
+            "ion-modal[is-open='true']",
+            "ion-modal .modal-wrapper",
+            "ion-modal ion-content"
         ],
         "file_input": [
-            "input[type='file']",                # 文件输入框
-            "input[accept*='image']",            # 接受图片的输入框
-            "input[accept*='.jpg']"              # 接受特定格式的输入框
+            "input[type='file']",
+            "input[accept*='image']",
+            "input[accept*='.jpg']"
         ],
         "submit_button": [
-            "ion-button:contains('提交检测')",    # 提交检测按钮
-            "ion-button[disabled='false']:contains('提交')", # 未禁用的提交按钮
-            "ion-button[expand='full']"          # 全宽按钮
+            "ion-button[expand='full']",             # 移除 :contains()
+            "ion-button[type='submit']",
+            "ion-button:not([disabled])",
+            "ion-button"
         ],
         "close_button": [
-            "ion-button:contains('关闭')",       # 关闭按钮
-            "ion-buttons ion-button"             # 头部按钮
+            "ion-button",                            # 移除 :contains()
+            "ion-buttons ion-button"
         ]
     },
     
@@ -194,27 +195,30 @@ SELECTORS = {
         ".alert-danger",
         "[class*='error']",
         "[class*='alert']",
-        "ion-card ion-card-content p:contains('错误')",
-        "ion-card ion-card-content p:contains('失败')"
+        "ion-card ion-card-content p",              # 移除 :contains()
+        "ion-card ion-card-content div",            # 移除 :contains()
+        "ion-alert .alert-button-inner",           # 添加更多有效选择器
+        "ion-toast .toast-content",
+        ".alert-message",
+        ".error-text",
+        "[role='alert']"
     ],
     
     "detection_result": [
-        "ion-modal[is-open='true'] ion-card ion-card-title:contains('检测结果')",
-        "ion-modal ion-card ion-card-content:contains('病害名称')",
-        "ion-modal ion-card ion-card-content:contains('置信度')",
-        "ion-modal ion-card ion-card-content:contains('建议')",
-        "ion-card:contains('检测结果')",
-        "ion-list ion-item:contains('检测')",
+        "ion-modal[is-open='true'] ion-card ion-card-title",  # 移除 :contains()
+        "ion-modal ion-card ion-card-content",
+        "ion-card ion-card-content",
+        "ion-list ion-item",                                  # 移除 :contains()
         "[class*='detection-result']",
         "[data-testid*='result']"
     ],
     
     "weather_info": [
-        "ion-card[style*='gradient']",            # 带渐变背景的天气卡片
-        "ion-card ion-card-title:contains('天气')", # 包含"天气"的标题
-        "ion-card:first-child",                   # 第一个卡片（通常是天气卡片）
-        ".weather-info",                          # 天气信息类名
-        "[class*='weather']"                      # 包含weather的类名
+        "ion-card[style*='gradient']",
+        "ion-card ion-card-title",                # 移除 :contains()
+        "ion-card:first-child",
+        ".weather-info",
+        "[class*='weather']"
     ],
     
     "weather_elements": {
