@@ -13,7 +13,7 @@ def test_e2e_plot_detection():
     请求体格式：
     {
         "test_config": {
-            "base_url": "http://localhost:8100",
+            "base_url": "http://47.120.78.249:8000",
             "test_username": "testuser",
             "test_password": "testpass",
             "headless": false,
@@ -114,7 +114,7 @@ def test_e2e_weather_info():
     请求体格式：
     {
         "test_config": {
-            "base_url": "http://localhost:8100",
+            "base_url": "http://47.120.78.249:8000",
             "test_username": "testuser",
             "test_password": "testpass",
             "headless": false,
@@ -209,7 +209,7 @@ def run_batch_e2e_tests():
     请求体格式：
     {
         "test_config": {
-            "base_url": "http://localhost:8100",
+            "base_url": "http://47.120.78.249:8000",
             "test_username": "testuser",
             "test_password": "testpass",
             "headless": true,
