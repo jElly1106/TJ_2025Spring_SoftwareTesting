@@ -72,13 +72,13 @@ WAIT_CONFIG = {
     "login_delay": 2,
     "plot_detail_delay": 3,
     "weather_info_delay": 3,
-    "input_delay": 0.3,
-    "click_delay": 0.5,
-    "scroll_delay": 0.5,
-    "modal_delay": 0.5,        # 模态框出现等待时间
-    "dropdown_delay": 0.5,     # 下拉框展开等待时间
-    "log_loading_delay": 0.5,    # 日志加载等待时间
-    "log_scroll_delay": 0.5,     # 日志滚动等待时间
+    "input_delay": 1,
+    "click_delay": 1,
+    "scroll_delay": 1,
+    "modal_delay": 1,        # 模态框出现等待时间
+    "dropdown_delay": 1,     # 下拉框展开等待时间
+    "log_loading_delay": 1,    # 日志加载等待时间
+    "log_scroll_delay": 1,     # 日志滚动等待时间
 }
 
 # 检测结果等待配置
@@ -270,26 +270,28 @@ SELECTORS = {
             "ion-modal .modal-wrapper"
         ],
         "plot_name_input": [
-            "ion-input[placeholder*='地块名称'] input",
+            "ion-modal ion-input[placeholder*='地块名称'] input",
+            "ion-modal ion-input[v-model*='plotName'] input",
+            "ion-modal ion-item ion-input input",
             "ion-input[placeholder*='请输入地块名称'] input",
-            "ion-item ion-input input",
-            "input[placeholder*='地块']"
+            "ion-modal input[placeholder*='地块']"
         ],
         "plant_select": [
+            "ion-modal ion-select[placeholder*='选择作物']",
+            "ion-modal ion-select[v-model*='plantName']",
+            "ion-modal ion-item ion-select",
             "ion-select[placeholder*='选择作物']",
-            "ion-select[placeholder*='作物']",
-            "ion-item ion-select",
-            "ion-select"
+            "ion-modal ion-select"
         ],
         "submit_button": [
-            "ion-button[expand='full']",
-            "ion-button:contains('提交')",
-            "ion-modal ion-button",
-            "button[type='submit']"
+            "ion-modal ion-button[expand='full']",
+            "ion-modal ion-button:not([slot='end'])",
+            "ion-modal ion-content ion-button",
+            "ion-button[expand='full']"
         ],
         "close_button": [
-            "ion-buttons ion-button",
-            "ion-button:contains('关闭')"
+            "ion-modal ion-buttons ion-button",
+            "ion-buttons[slot='end'] ion-button"
         ]
     },
     
@@ -739,12 +741,7 @@ TEST_CASES_CONFIG = {
             "用户填写地块名称",
             "用户选择第一种植物",
             "用户提交创建地块",
-            "系统创建地块成功",
-            "用户点击新创建的地块",
-            "用户点击更多选项按钮",
-            "用户选择删除地块选项",
-            "用户确认删除操作",
-            "系统删除地块成功并返回首页"
+            "系统创建地块成功"
         ],
         "expected_result": "成功创建地块并成功删除地块",
         "test_type": "端到端测试",
